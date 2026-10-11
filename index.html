@@ -4,36 +4,170 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CRYPTOEDGE | Crypto Signals</title>
+<meta name="description" content="CRYPTOEDGE crypto trading signals. Free BTC alerts and premium signals for BTC, ETH, SOL, XRP, HYPE and AAVE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  body{font-family:system-ui,sans-serif;max-width:760px;margin:0 auto;padding:24px;line-height:1.6;color:#1a1a1a}
-  h1{margin-bottom:4px} .btn{display:inline-block;background:#0a7f5a;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none}
-  .muted{color:#666;font-size:14px} footer{margin-top:40px;font-size:13px;color:#666}
+  :root{
+    --bg:#070a0f; --surface:#0d131b; --surface-2:#111a24;
+    --border:rgba(148,163,184,.12); --border-strong:rgba(148,163,184,.22);
+    --text:#e8eef5; --muted:#8792a2;
+    --accent:#22c55e; --accent-strong:#16a34a; --accent-soft:rgba(34,197,94,.12);
+    --telegram:#2aabee; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-size:15px; line-height:1.6; color:var(--text);
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(34,197,94,.10), transparent 60%),
+      radial-gradient(700px 400px at -10% 10%, rgba(42,171,238,.07), transparent 60%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+
+  /* Header */
+  .topbar{position:sticky; top:0; z-index:10; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    background:rgba(7,10,15,.7); border-bottom:1px solid var(--border)}
+  .topbar-inner{max-width:1040px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.08em; font-size:14px; text-decoration:none}
+  .logo{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,var(--accent),var(--accent-strong)); color:#04130a; font-weight:900; font-size:13px}
+  .nav-link{font-size:14px; font-weight:600; color:var(--muted); text-decoration:none}
+  .nav-link:hover{color:var(--text)}
+
+  /* Layout */
+  .page{max-width:1040px; margin:0 auto; padding:64px 24px 64px}
+  .hero{text-align:center; margin-bottom:56px}
+  .eyebrow{display:inline-block; font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); background:var(--accent-soft); padding:6px 12px; border-radius:999px; margin-bottom:16px}
+  h1{font-size:clamp(32px,5vw,52px); line-height:1.1; letter-spacing:-.03em; margin:0 0 14px; font-weight:800}
+  .lead{color:var(--muted); font-size:17px; max-width:560px; margin:0 auto 28px}
+  .cta{display:inline-flex; align-items:center; gap:8px; padding:14px 24px; border-radius:12px; text-decoration:none;
+    font-weight:700; font-size:16px; color:#03140a; background:linear-gradient(135deg,#34d399,var(--accent-strong));
+    box-shadow:0 10px 30px -10px rgba(34,197,94,.55); transition:transform .12s, filter .2s}
+  .cta:hover{transform:translateY(-1px); filter:brightness(1.05)}
+  .cta-note{color:var(--muted); font-size:13px; margin:12px 0 0}
+
+  .section-title{font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:0 0 16px}
+
+  /* Tier cards */
+  .tiers{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin-bottom:56px}
+  .card{background:linear-gradient(180deg,var(--surface-2),var(--surface)); border:1px solid var(--border);
+    border-radius:var(--radius); padding:28px; box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
+  .card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px}
+  .card h3{font-size:18px; margin:0; font-weight:700}
+  .badge{font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px;
+    background:rgba(42,171,238,.12); color:#7dd3fc}
+  .badge.premium{background:var(--accent-soft); color:var(--accent)}
+  .card p.sub{color:var(--muted); font-size:14px; margin:0 0 18px}
+  .assets{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px}
+  .asset{font-size:12px; font-weight:600; padding:4px 10px; border-radius:8px; background:#0a1017; border:1px solid var(--border-strong); color:#cbd5e1}
+  .tg-link{display:inline-block; font-weight:600; font-size:14px; color:#7dd3fc; text-decoration:none}
+  .tg-link:hover{text-decoration:underline}
+
+  /* Features */
+  .features{list-style:none; padding:0; margin:0 0 56px; display:grid; gap:12px}
+  .features li{display:flex; gap:12px; align-items:flex-start; padding:16px 18px; border:1px solid var(--border);
+    border-radius:12px; background:var(--surface); color:#cbd5e1}
+  .check{flex:0 0 20px; height:20px; border-radius:50%; display:grid; place-items:center; background:var(--accent-soft);
+    color:var(--accent); font-size:11px; font-weight:800; margin-top:1px}
+
+  /* Premium CTA band */
+  .band{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; padding:28px;
+    border:1px solid rgba(34,197,94,.25); border-radius:var(--radius);
+    background:linear-gradient(135deg,rgba(34,197,94,.10),rgba(34,197,94,.02))}
+  .band h2{font-size:20px; margin:0 0 4px}
+  .band p{margin:0; color:var(--muted); font-size:14px}
+  .price{font-size:32px; font-weight:800; letter-spacing:-.02em}
+  .price small{font-size:14px; color:var(--muted); font-weight:500}
+
+  /* Disclaimers */
+  .legal{margin-top:56px; padding:28px; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface)}
+  .legal h2{font-size:16px; margin:0 0 14px; font-weight:700}
+  .legal ul{margin:0; padding-left:20px; color:var(--muted); font-size:14px; display:grid; gap:8px}
+  .legal b{color:var(--text); font-weight:600}
+
+  footer{margin-top:40px; padding-top:24px; border-top:1px solid var(--border); color:var(--muted); font-size:13px;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px}
+
+  @media (max-width:760px){
+    .tiers{grid-template-columns:1fr}
+    .page{padding:40px 16px 48px}
+    .card{padding:22px}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
 </style>
 </head>
 <body>
-<h1>CRYPTOEDGE</h1>
-<p class="muted">Crypto trading signals</p>
 
-<h2>What you get</h2>
-<ul>
-  <li><b>Free channel:</b> BTC signal alerts, as they happen.</li>
-  <li><b>Premium channel:</b> BTC plus ETH, SOL, XRP, HYPE, and AAVE signals.</li>
-  <li>Entry, stop loss, and three take-profit levels for each signal.</li>
-</ul>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/"><span class="logo">CE</span>CRYPTOEDGE</a>
+    <a class="nav-link" href="/premium.html">Premium</a>
+  </div>
+</header>
 
-<h2>Join the channel</h2>
-<p>Public updates: <a href="https://t.me/cryptoedgelab">@cryptoedgelab</a></p>
-<p>Premium access is <b>$10 USD for 30 days</b>, paid in crypto.</p>
-<p><a class="btn" href="/premium.html">Get Premium access</a></p>
+<main class="page">
+  <section class="hero">
+    <span class="eyebrow">Crypto trading signals</span>
+    <h1>Trade with clear entries and exits</h1>
+    <p class="lead">Every signal includes an entry, a stop loss and three take-profit levels, sent as the setup forms.</p>
+    <a class="cta" href="/premium.html">Get Premium access</a>
+    <p class="cta-note">$10 USD for 30 days, paid in crypto</p>
+  </section>
 
-<h2>Important</h2>
-<ul>
-  <li>Signals are for information only and are <b>not financial advice</b>.</li>
-  <li>Crypto trading carries a high risk of loss. Only trade what you can afford to lose.</li>
-  <li><b>Refunds:</b> Payments are final once access is granted. If a payment was sent but not confirmed, contact us within 7 days with proof and we will review it.</li>
-  <li>By paying you agree that access is for personal use and must not be shared or resold.</li>
-</ul>
+  <p class="section-title">Channels</p>
+  <div class="tiers">
+    <div class="card">
+      <div class="card-head"><h3>Free channel</h3><span class="badge">Free</span></div>
+      <p class="sub">BTC signal alerts, as they happen.</p>
+      <div class="assets"><span class="asset">BTC</span></div>
+      <a class="tg-link" href="https://t.me/cryptoedgelab" target="_blank" rel="noopener">Join @cryptoedgelab →</a>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Premium channel</h3><span class="badge premium">Premium</span></div>
+      <p class="sub">BTC plus the full altcoin list.</p>
+      <div class="assets">
+        <span class="asset">BTC</span><span class="asset">ETH</span><span class="asset">SOL</span>
+        <span class="asset">XRP</span><span class="asset">HYPE</span><span class="asset">AAVE</span>
+      </div>
+      <a class="tg-link" href="/premium.html">Get access →</a>
+    </div>
+  </div>
 
-<footer>&copy; CRYPTOEDGE</footer>
+  <p class="section-title">What you get</p>
+  <ul class="features">
+    <li><span class="check">✓</span>Entry, stop loss and three take-profit levels for each signal.</li>
+    <li><span class="check">✓</span>Alerts as they happen, in the channel you choose.</li>
+  </ul>
+
+  <div class="band">
+    <div>
+      <h2>Premium access</h2>
+      <p>Pay in crypto, submit your proof, and get a private invite link.</p>
+    </div>
+    <div class="price">$10 <small>/ 30 days</small></div>
+    <a class="cta" href="/premium.html">Get Premium access</a>
+  </div>
+
+  <section class="legal">
+    <h2>Important</h2>
+    <ul>
+      <li>Signals are for information only and are <b>not financial advice</b>.</li>
+      <li>Crypto trading carries a high risk of loss. Only trade what you can afford to lose.</li>
+      <li><b>Refunds:</b> Payments are final once access is granted. If a payment was sent but not confirmed, contact us within 7 days with proof and we will review it.</li>
+      <li>By paying you agree that access is for personal use and must not be shared or resold.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>&copy; CRYPTOEDGE</span>
+    <span><a class="nav-link" href="/premium.html">Premium</a></span>
+  </footer>
+</main>
+
 </body>
 </html>
