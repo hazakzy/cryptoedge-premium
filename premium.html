@@ -12,6 +12,7 @@
   button{margin-top:20px;background:#0a7f5a;color:#fff;border:0;padding:12px 20px;border-radius:8px;font-size:16px;cursor:pointer}
   button:disabled{background:#999} .msg{margin-top:16px;padding:12px;border-radius:6px} .ok{background:#e6f6ef} .err{background:#fdecec}
   .muted{color:#666;font-size:14px}
+  a.button{display:inline-block;margin-top:10px;background:#0a7f5a;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-size:16px}
 </style>
 </head>
 <body>
@@ -26,7 +27,7 @@
 
 <label for="username">2. Your Telegram username</label>
 <input id="username" placeholder="@yourname" maxlength="40">
-<p class="muted">Start our bot first, or we cannot send your invite link. We approve payments within 12 hours.</p>
+<p class="muted">After you submit, tap the button that appears and press Start, or we cannot send your invite link. We approve payments within 12 hours.</p>
 
 <label for="tx">3. Transaction hash (or upload a screenshot below)</label>
 <input id="tx" placeholder="0x... or BTC transaction ID" maxlength="200">
@@ -86,7 +87,9 @@ document.getElementById('submit').addEventListener('click', async () => {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Submission failed');
-    result.innerHTML = `<div class="msg ok">Received. Your reference is <b>${data.reference}</b>. We will check your payment within 12 hours and send your invite link on Telegram.</div>`;
+    result.innerHTML = `<div class="msg ok">Received. Your reference is <b>${data.reference}</b>. We will check your payment within 12 hours.</div>
+      <p><a class="button" href="https://t.me/thetce_bot?start=${data.reference}" target="_blank" rel="noopener">Open @thetce_bot to get your invite link</a></p>
+      <p class="muted">Tap the button and press Start. Your invite link will arrive there after approval.</p>`;
     document.getElementById('tx').value = ''; document.getElementById('shot').value = '';
   } catch (e) {
     result.innerHTML = `<div class="msg err">${e.message}</div>`;
