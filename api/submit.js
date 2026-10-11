@@ -1,0 +1,54 @@
+const { neon } = require('@neondatabase/serverless');
+
+const METHODS = ['BTC', 'USDT_BSC', 'USDT_ARB'];
+const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024; // 2 MB
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!process.env.DATABASE_URL) return res.status(500).json({ error: 'Server not configured' });
+
+  const body = req.body || {};
+  const username = String(body.telegram_username || '').trim().replace(/^@/, '');
+  const method = String(body.method || '');
+  const txHash = String(body.tx_hash || '').trim();
+  const shot = body.screenshot_base64 ? String(body.screenshot_base64) : null;
+  const shotType = body.screenshot_type ? String(body.screenshot_type) : null;
+
+  if (!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(username)) {
+    return res.status(400).json({ error: 'Enter a valid Telegram username (5-32 letters, numbers, underscores).' });
+  }
+  if (!METHODS.includes(method)) {
+    return res.status(400).json({ error: 'Choose a payment method.' });
+  }
+  if (txHash.length > 200) {
+    return res.status(400).json({ error: 'Transaction hash is too long.' });
+  }
+  if (!txHash && !shot) {
+    return res.status(400).json({ error: 'Provide a transaction hash or a payment screenshot.' });
+  }
+
+  let shotBytes = null;
+  if (shot) {
+    if (!ALLOWED_TYPES.includes(shotType)) {
+      return res.status(400).json({ error: 'Screenshot must be PNG, JPEG, or WEBP.' });
+    }
+    shotBytes = Buffer.from(shot, 'base64');
+    if (shotBytes.length > MAX_SCREENSHOT_BYTES) {
+      return res.status(400).json({ error: 'Screenshot must be under 2 MB.' });
+    }
+  }
+
+  try {
+    const sql = neon(process.env.DATABASE_URL);
+    const rows = await sql`
+      INSERT INTO submissions (telegram_username, method, tx_hash, screenshot, screenshot_type)
+      VALUES (${username}, ${method}, ${txHash || null}, ${shotBytes}, ${shot ? shotType : null})
+      RETURNING id
+    `;
+    return res.status(201).json({ ok: true, reference: `CE-${rows[0].id}` });
+  } catch (err) {
+    console.error('submit error', err);
+    return res.status(500).json({ error: 'Could not save your submission. Please try again.' });
+  }
+};
