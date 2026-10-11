@@ -4,7 +4,6 @@ module.exports = (req, res) => {
   res.status(200).json({
     price_usd: 10,
     duration_days: 30,
-    channel: '@cryptoedgelab',
     methods: {
       BTC: { label: 'Bitcoin (BTC)', network: 'Bitcoin', address: process.env.BTC_ADDRESS || '' },
       USDT_BSC: { label: 'USDT (BEP-20)', network: 'BNB Smart Chain (BSC) only', address: process.env.BSC_ADDRESS || '' },
