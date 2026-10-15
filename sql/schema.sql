@@ -17,3 +17,5 @@ CREATE TABLE IF NOT EXISTS members (
   username TEXT,
   expires_at TIMESTAMPTZ NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS submissions_status_created_idx ON submissions (status, created_at DESC);

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>CRYPTOEDGE Admin</title>
+<style>
+  :root{
+    --bg:#070a0f; --surface:#0d131b; --surface-2:#111a24;
+    --border:rgba(148,163,184,.12); --border-strong:rgba(148,163,184,.22);
+    --text:#e8eef5; --muted:#8792a2;
+    --accent:#22c55e; --accent-strong:#16a34a; --accent-soft:rgba(34,197,94,.12);
+    --warn:#f59e0b; --warn-soft:rgba(245,158,11,.10);
+    --danger:#f87171; --danger-soft:rgba(248,113,113,.10);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;color:var(--text);background:var(--bg)}
+  h1{margin:0 0 16px;font-size:22px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  input,select,button{font:inherit;color:var(--text);background:var(--surface-2);border:1px solid var(--border-strong);border-radius:10px;padding:8px 12px}
+  input{min-width:260px}
+  button{cursor:pointer}
+  button.primary{background:var(--accent);border-color:var(--accent-strong);color:#04130a;font-weight:600}
+  button.danger{color:var(--danger);background:var(--danger-soft)}
+  .msg{padding:10px 14px;border-radius:10px;margin-bottom:16px;display:none}
+  .msg.error{display:block;color:var(--danger);background:var(--danger-soft);border:1px solid var(--danger)}
+  .msg.ok{display:block;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent)}
+  .wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:13px}
+  td.hash{word-break:break-all;max-width:260px;font-family:ui-monospace,monospace;font-size:13px}
+  td.actions{white-space:nowrap}
+  td.actions button{margin-right:6px}
+  .pill{padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border-strong)}
+  .pill.pending{color:var(--warn);background:var(--warn-soft)}
+  .pill.approved{color:var(--accent);background:var(--accent-soft)}
+  .pill.rejected{color:var(--danger);background:var(--danger-soft)}
+  #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:20px;z-index:10}
+  #modal.open{display:flex}
+  #modal img{max-width:100%;max-height:90vh;border-radius:var(--radius);border:1px solid var(--border-strong)}
+</style>
+</head>
+<body>
+<h1>CRYPTOEDGE — Admin review</h1>
+<div class="bar">
+  <input id="token" type="password" placeholder="Admin token" autocomplete="off">
+  <button class="primary" id="load">Load</button>
+  <select id="status">
+    <option value="pending">Pending</option>
+    <option value="approved">Approved</option>
+    <option value="rejected">Rejected</option>
+    <option value="all">All</option>
+  </select>
+</div>
+<div id="msg" class="msg"></div>
+<div class="wrap">
+  <table>
+    <thead><tr><th>Ref</th><th>Username</th><th>Method</th><th>Tx hash</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+<div id="modal"><img id="shot" alt="Payment screenshot"></div>
+<script>
+(function(){
+  var tokenEl = document.getElementById('token');
+  var statusEl = document.getElementById('status');
+  var rowsEl = document.getElementById('rows');
+  var msgEl = document.getElementById('msg');
+  var modal = document.getElementById('modal');
+  var shot = document.getElementById('shot');
+  var blobUrl = null;
+
+  tokenEl.value = sessionStorage.getItem('adminToken') || '';
+
+  function show(text, kind){ msgEl.textContent = text; msgEl.className = 'msg ' + kind; }
+  function clearMsg(){ msgEl.textContent = ''; msgEl.className = 'msg'; }
+
+  function api(path, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({ 'Authorization': 'Bearer ' + tokenEl.value.trim() }, opts.headers || {});
+    return fetch(path, opts).catch(function(){ throw new Error('Network error. Please try again.'); })
+      .then(function(r){
+        if (r.status === 401) throw new Error('Unauthorized: invalid or missing admin token.');
+        return r;
+      });
+  }
+  function errFrom(r, fallback){
+    return r.json().then(function(j){ return new Error(j.error || fallback); }, function(){ return new Error(fallback); });
+  }
+
+  function cell(tr, text, cls){
+    var td = document.createElement('td');
+    if (cls) td.className = cls;
+    td.textContent = text;
+    tr.appendChild(td);
+    return td;
+  }
+
+  function render(list){
+    rowsEl.textContent = '';
+    if (!list.length) {
+      var tr0 = document.createElement('tr');
+      var td0 = cell(tr0, 'No submissions.');
+      td0.colSpan = 7;
+      rowsEl.appendChild(tr0);
+      return;
+    }
+    list.forEach(function(s){
+      var tr = document.createElement('tr');
+      cell(tr, s.reference);
+      cell(tr, '@' + s.telegram_username);
+      cell(tr, s.method);
+      cell(tr, s.tx_hash || '—', 'hash');
+      cell(tr, new Date(s.created_at).toLocaleString());
+      var st = cell(tr, '');
+      var pill = document.createElement('span');
+      pill.className = 'pill ' + (['pending','approved','rejected'].indexOf(s.status) >= 0 ? s.status : '');
+      pill.textContent = s.status;
+      st.appendChild(pill);
+      var act = cell(tr, '', 'actions');
+      if (s.has_screenshot) act.appendChild(btn('View screenshot', '', function(){ viewShot(s.id); }));
+      if (s.status === 'pending') {
+        act.appendChild(btn('Approve', 'primary', function(){ review(s, 'approve'); }));
+        act.appendChild(btn('Reject', 'danger', function(){ review(s, 'reject'); }));
+      }
+      rowsEl.appendChild(tr);
+    });
+  }
+  function btn(label, cls, fn){
+    var b = document.createElement('button');
+    b.textContent = label; if (cls) b.className = cls;
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  function load(){
+    clearMsg();
+    sessionStorage.setItem('adminToken', tokenEl.value.trim());
+    return api('/api/admin/submissions?status=' + encodeURIComponent(statusEl.value))
+      .then(function(r){ if (!r.ok) return errFrom(r, 'Could not load submissions.').then(function(e){ throw e; }); return r.json(); })
+      .then(function(j){ render(j.submissions); })
+      .catch(function(e){ rowsEl.textContent = ''; show(e.message, 'error'); });
+  }
+
+  function viewShot(id){
+    clearMsg();
+    api('/api/admin/screenshot?id=' + encodeURIComponent(id))
+      .then(function(r){ if (!r.ok) return errFrom(r, 'Could not load screenshot.').then(function(e){ throw e; }); return r.blob(); })
+      .then(function(b){
+        if (blobUrl) URL.revokeObjectURL(blobUrl);
+        blobUrl = URL.createObjectURL(b);
+        shot.src = blobUrl;
+        modal.classList.add('open');
+      })
+      .catch(function(e){ show(e.message, 'error'); });
+  }
+
+  function closeModal(){
+    modal.classList.remove('open');
+    shot.removeAttribute('src');
+    if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+  }
+  modal.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+  function review(s, action){
+    if (!window.confirm(action.charAt(0).toUpperCase() + action.slice(1) + ' ' + s.reference + ' (@' + s.telegram_username + ')?')) return;
+    api('/api/admin/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: s.id, action: action })
+    })
+      .then(function(r){ if (!r.ok) return errFrom(r, 'Could not update submission.').then(function(e){ throw e; }); return r.json(); })
+      .then(function(){ return load().then(function(){ show(s.reference + (action === 'approve' ? ' approved.' : ' rejected.'), 'ok'); }); })
+      .catch(function(e){ show(e.message, 'error'); });
+  }
+
+  document.getElementById('load').addEventListener('click', load);
+  statusEl.addEventListener('change', load);
+  tokenEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') load(); });
+  if (tokenEl.value) load();
+})();
+</script>
+</body>
+</html>
