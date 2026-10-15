@@ -33,7 +33,10 @@ module.exports = async (req, res) => {
     if (!ALLOWED_TYPES.includes(shotType)) {
       return res.status(400).json({ error: 'Screenshot must be PNG, JPEG, or WEBP.' });
     }
-    shotBytes = Buffer.from(shot, 'base64');
+    shotBytes = Buffer.from(shot.replace(/^data:[^,]*,/, ''), 'base64');
+    if (!shotBytes.length) {
+      return res.status(400).json({ error: 'Screenshot could not be read. Please try another image.' });
+    }
     if (shotBytes.length > MAX_SCREENSHOT_BYTES) {
       return res.status(400).json({ error: 'Screenshot must be under 2 MB.' });
     }
@@ -41,9 +44,12 @@ module.exports = async (req, res) => {
 
   try {
     const sql = neon(process.env.DATABASE_URL);
+    // The Neon HTTP driver JSON-encodes query params, so a Buffer would be stored as the text
+    // {"type":"Buffer","data":[...]}. Send a hex bytea literal and cast it explicitly instead.
+    const shotHex = shotBytes ? '\\x' + shotBytes.toString('hex') : null;
     const rows = await sql`
       INSERT INTO submissions (telegram_username, method, tx_hash, screenshot, screenshot_type)
-      VALUES (${username}, ${method}, ${txHash || null}, ${shotBytes}, ${shot ? shotType : null})
+      VALUES (${username}, ${method}, ${txHash || null}, ${shotHex}::bytea, ${shot ? shotType : null})
       RETURNING id
     `;
     return res.status(201).json({ ok: true, reference: `CE-${rows[0].id}` });

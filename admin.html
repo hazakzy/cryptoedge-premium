@@ -1,82 +1,139 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CRYPTOEDGE Admin</title>
-<style>
-  :root{
-    --bg:#070a0f; --surface:#0d131b; --surface-2:#111a24;
-    --border:rgba(148,163,184,.12); --border-strong:rgba(148,163,184,.22);
-    --text:#e8eef5; --muted:#8792a2;
-    --accent:#22c55e; --accent-strong:#16a34a; --accent-soft:rgba(34,197,94,.12);
-    --warn:#f59e0b; --warn-soft:rgba(245,158,11,.10);
-    --danger:#f87171; --danger-soft:rgba(248,113,113,.10);
-    --radius:14px;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;padding:24px;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;color:var(--text);background:var(--bg)}
-  h1{margin:0 0 16px;font-size:22px}
-  .bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
-  input,select,button{font:inherit;color:var(--text);background:var(--surface-2);border:1px solid var(--border-strong);border-radius:10px;padding:8px 12px}
-  input{min-width:260px}
-  button{cursor:pointer}
-  button.primary{background:var(--accent);border-color:var(--accent-strong);color:#04130a;font-weight:600}
-  button.danger{color:var(--danger);background:var(--danger-soft)}
-  .msg{padding:10px 14px;border-radius:10px;margin-bottom:16px;display:none}
-  .msg.error{display:block;color:var(--danger);background:var(--danger-soft);border:1px solid var(--danger)}
-  .msg.ok{display:block;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent)}
-  .wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
-  th{color:var(--muted);font-weight:500;font-size:13px}
-  td.hash{word-break:break-all;max-width:260px;font-family:ui-monospace,monospace;font-size:13px}
-  td.actions{white-space:nowrap}
-  td.actions button{margin-right:6px}
-  .pill{padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border-strong)}
-  .pill.pending{color:var(--warn);background:var(--warn-soft)}
-  .pill.approved{color:var(--accent);background:var(--accent-soft)}
-  .pill.rejected{color:var(--danger);background:var(--danger-soft)}
-  #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:20px;z-index:10}
-  #modal.open{display:flex}
-  #modal img{max-width:100%;max-height:90vh;border-radius:var(--radius);border:1px solid var(--border-strong)}
-</style>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#070a0f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322c55e'/%3E%3Ctext x='16' y='22' font-family='Arial,sans-serif' font-size='15' font-weight='900' text-anchor='middle' fill='%2304130a'%3ECE%3C/text%3E%3C/svg%3E">
+<script>(function(){try{var t=localStorage.getItem('ce-theme');if(t!=='light'&&t!=='dark')t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.setAttribute('data-theme',t);if(t==='light'){document.querySelector('meta[name="theme-color"]').setAttribute('content','#f4f7fb');}}catch(e){}})();</script>
+<link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
-<h1>CRYPTOEDGE — Admin review</h1>
-<div class="bar">
-  <input id="token" type="password" placeholder="Admin token" autocomplete="off">
-  <button class="primary" id="load">Load</button>
-  <select id="status">
-    <option value="pending">Pending</option>
-    <option value="approved">Approved</option>
-    <option value="rejected">Rejected</option>
-    <option value="all">All</option>
-  </select>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/"><span class="logo">CE</span>CRYPTOEDGE</a>
+    <div class="topbar-actions">
+      <span class="secure">Admin</span>
+      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme" aria-pressed="false"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="page admin-page">
+  <div class="admin-head">
+    <h1>Admin review</h1>
+    <button class="abtn" id="logout" type="button">Logout / clear token</button>
+  </div>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat pending"><span>Pending</span><b id="stat-pending">0</b></div>
+    <div class="stat approved"><span>Approved</span><b id="stat-approved">0</b></div>
+    <div class="stat rejected"><span>Rejected</span><b id="stat-rejected">0</b></div>
+  </div>
+
+  <div class="bar">
+    <label class="sr-only" for="token">Admin token</label>
+    <input id="token" type="password" placeholder="Admin token" autocomplete="off">
+    <button class="abtn primary" id="load" type="button">Load</button>
+    <label class="sr-only" for="status">Status filter</label>
+    <select id="status">
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="all">All</option>
+    </select>
+    <label class="sr-only" for="search">Search submissions</label>
+    <input id="search" type="search" placeholder="Search username, reference or tx hash" autocomplete="off">
+  </div>
+  <div id="msg" class="msg-bar" role="alert"></div>
+
+  <div class="wrap">
+    <table>
+      <thead><tr><th>Ref</th><th>Username</th><th>Method</th><th>Tx hash</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <section class="contact" aria-labelledby="contact-h">
+    <h2 id="contact-h">Contact us</h2>
+    <div class="contact-links">
+      <a class="contact-link wa" href="https://wa.me/2348028071868" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.4 15.1L2 22l5.05-1.6A9.9 9.9 0 1 0 12.04 2zm0 1.8a8.1 8.1 0 1 1-4.3 15l-.3-.2-3 .95.98-2.9-.2-.3a8.1 8.1 0 0 1 6.82-12.55zM8.6 7.6c-.2 0-.5.1-.7.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3l-1.9-.9c-.3-.1-.5-.1-.7.1l-.9 1.1c-.1.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.8-.8-1.4-1.700-1.600-2-.1-.3 0-.4.1-.5l.4-.5c.1-.1.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.4-.5-.6-.5z"/></svg><span>WhatsApp: +2348028071868</span></a>
+      <a class="contact-link mail" href="mailto:thecryptoedge1@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg><span>thecryptoedge1@gmail.com</span></a>
+    </div>
+  </section>
+</main>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<div class="overlay" id="modal">
+  <div class="shot-dialog" role="dialog" aria-modal="true" aria-labelledby="shot-caption" tabindex="-1">
+    <div class="shot-top">
+      <div class="shot-caption" id="shot-caption">Payment screenshot</div>
+      <div class="shot-tools">
+        <button type="button" class="abtn small" id="shot-zoom">Actual size</button>
+        <a class="abtn small" id="shot-open" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;text-decoration:none">Open in new tab</a>
+        <a class="abtn small" id="shot-download" style="display:inline-flex;align-items:center;text-decoration:none">Download</a>
+        <button type="button" class="close-btn" id="shot-close" aria-label="Close screenshot">&times;</button>
+      </div>
+    </div>
+    <div class="shot-stage" id="shot-stage">
+      <div class="spinner" id="shot-spinner" role="status" aria-label="Loading screenshot"></div>
+      <img id="shot" alt="Payment screenshot" hidden>
+      <div class="shot-error" id="shot-error" hidden></div>
+    </div>
+    <div class="shot-info" id="shot-info"></div>
+  </div>
 </div>
-<div id="msg" class="msg"></div>
-<div class="wrap">
-  <table>
-    <thead><tr><th>Ref</th><th>Username</th><th>Method</th><th>Tx hash</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
+
+<div class="overlay" id="confirm">
+  <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text" tabindex="-1">
+    <h2 id="confirm-title">Confirm</h2>
+    <p id="confirm-text"></p>
+    <div class="confirm-actions">
+      <button type="button" class="abtn" id="confirm-cancel">Cancel</button>
+      <button type="button" class="abtn primary" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
 </div>
-<div id="modal"><img id="shot" alt="Payment screenshot"></div>
+
 <script>
 (function(){
   var tokenEl = document.getElementById('token');
   var statusEl = document.getElementById('status');
+  var searchEl = document.getElementById('search');
   var rowsEl = document.getElementById('rows');
   var msgEl = document.getElementById('msg');
+  var toastsEl = document.getElementById('toasts');
   var modal = document.getElementById('modal');
   var shot = document.getElementById('shot');
+  var stage = document.getElementById('shot-stage');
+  var spinner = document.getElementById('shot-spinner');
+  var shotErr = document.getElementById('shot-error');
+  var shotInfo = document.getElementById('shot-info');
+  var shotCaption = document.getElementById('shot-caption');
+  var zoomBtn = document.getElementById('shot-zoom');
+  var openLink = document.getElementById('shot-open');
+  var dlLink = document.getElementById('shot-download');
+  var confirmEl = document.getElementById('confirm');
   var blobUrl = null;
+  var current = [];
+  var lastFocus = null;
+  var shotSeq = 0;
 
   tokenEl.value = sessionStorage.getItem('adminToken') || '';
 
-  function show(text, kind){ msgEl.textContent = text; msgEl.className = 'msg ' + kind; }
-  function clearMsg(){ msgEl.textContent = ''; msgEl.className = 'msg'; }
+  function show(text, kind){ msgEl.textContent = text; msgEl.className = 'msg-bar ' + kind; }
+  function clearMsg(){ msgEl.textContent = ''; msgEl.className = 'msg-bar'; }
+  function toast(text, kind){
+    var t = document.createElement('div');
+    t.className = 'toast ' + (kind || '');
+    t.textContent = text;
+    toastsEl.appendChild(t);
+    setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 4000);
+  }
 
   function api(path, opts){
     opts = opts || {};
@@ -91,98 +148,274 @@
     return r.json().then(function(j){ return new Error(j.error || fallback); }, function(){ return new Error(fallback); });
   }
 
-  function cell(tr, text, cls){
+  function relTime(iso){
+    var d = new Date(iso), diff = (Date.now() - d.getTime()) / 1000;
+    if (isNaN(diff)) return '';
+    if (diff < 0) diff = 0;
+    var units = [['day', 86400], ['hour', 3600], ['minute', 60]];
+    if (diff < 60) return 'just now';
+    for (var i = 0; i < units.length; i++) {
+      if (diff >= units[i][1]) { var n = Math.floor(diff / units[i][1]); return n + ' ' + units[i][0] + (n > 1 ? 's' : '') + ' ago'; }
+    }
+    return '';
+  }
+
+  function copyText(text, label){
+    function done(){ toast(label + ' copied', 'ok'); }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { toast('Could not copy', 'error'); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  }
+
+  function cell(tr, text, cls, label){
     var td = document.createElement('td');
     if (cls) td.className = cls;
+    if (label) td.setAttribute('data-label', label);
     td.textContent = text;
     tr.appendChild(td);
     return td;
   }
+  function btn(label, cls, fn){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label; b.className = 'abtn' + (cls ? ' ' + cls : '');
+    b.addEventListener('click', function(){ fn(b); });
+    return b;
+  }
+  function copyBtn(text, label){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'copy-mini'; b.textContent = 'Copy';
+    b.setAttribute('aria-label', 'Copy ' + label);
+    b.addEventListener('click', function(){ copyText(text, label); });
+    return b;
+  }
 
-  function render(list){
+  function renderSkeleton(){
     rowsEl.textContent = '';
-    if (!list.length) {
-      var tr0 = document.createElement('tr');
-      var td0 = cell(tr0, 'No submissions.');
-      td0.colSpan = 7;
-      rowsEl.appendChild(tr0);
-      return;
+    for (var i = 0; i < 4; i++) {
+      var tr = document.createElement('tr');
+      var td = document.createElement('td');
+      td.colSpan = 7; td.className = 'full';
+      var s = document.createElement('span'); s.className = 'skel';
+      td.appendChild(s); tr.appendChild(td); rowsEl.appendChild(tr);
     }
+  }
+  function renderEmpty(text){
+    rowsEl.textContent = '';
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.colSpan = 7; td.className = 'empty full'; td.textContent = text;
+    tr.appendChild(td); rowsEl.appendChild(tr);
+  }
+
+  function updateStats(list){
+    ['pending', 'approved', 'rejected'].forEach(function(k){
+      document.getElementById('stat-' + k).textContent = list.filter(function(s){ return s.status === k; }).length;
+    });
+  }
+
+  function render(){
+    var q = searchEl.value.trim().toLowerCase();
+    var list = current.filter(function(s){
+      if (!q) return true;
+      return [s.reference, s.telegram_username, '@' + s.telegram_username, s.tx_hash || ''].join(' ').toLowerCase().indexOf(q) >= 0;
+    });
+    if (!list.length) { renderEmpty(current.length ? 'No submissions match your search.' : 'No submissions.'); return; }
+    rowsEl.textContent = '';
     list.forEach(function(s){
       var tr = document.createElement('tr');
-      cell(tr, s.reference);
-      cell(tr, '@' + s.telegram_username);
-      cell(tr, s.method);
-      cell(tr, s.tx_hash || '—', 'hash');
-      cell(tr, new Date(s.created_at).toLocaleString());
-      var st = cell(tr, '');
+      cell(tr, s.reference, '', 'Ref');
+      var u = cell(tr, '@' + s.telegram_username, '', 'Username');
+      u.appendChild(copyBtn('@' + s.telegram_username, 'username'));
+      cell(tr, s.method, '', 'Method');
+      var h = cell(tr, s.tx_hash || '—', 'hash', 'Tx hash');
+      if (s.tx_hash) h.appendChild(copyBtn(s.tx_hash, 'tx hash'));
+      var c = cell(tr, relTime(s.created_at), '', 'Created');
+      c.title = new Date(s.created_at).toLocaleString();
+      var st = cell(tr, '', '', 'Status');
       var pill = document.createElement('span');
       pill.className = 'pill ' + (['pending','approved','rejected'].indexOf(s.status) >= 0 ? s.status : '');
       pill.textContent = s.status;
       st.appendChild(pill);
       var act = cell(tr, '', 'actions');
-      if (s.has_screenshot) act.appendChild(btn('View screenshot', '', function(){ viewShot(s.id); }));
+      if (s.has_screenshot) act.appendChild(btn('View screenshot', '', function(b){ viewShot(s, b); }));
       if (s.status === 'pending') {
-        act.appendChild(btn('Approve', 'primary', function(){ review(s, 'approve'); }));
-        act.appendChild(btn('Reject', 'danger', function(){ review(s, 'reject'); }));
+        act.appendChild(btn('Approve', 'primary', function(b){ review(s, 'approve', b); }));
+        act.appendChild(btn('Reject', 'danger', function(b){ review(s, 'reject', b); }));
       }
       rowsEl.appendChild(tr);
     });
-  }
-  function btn(label, cls, fn){
-    var b = document.createElement('button');
-    b.textContent = label; if (cls) b.className = cls;
-    b.addEventListener('click', fn);
-    return b;
   }
 
   function load(){
     clearMsg();
     sessionStorage.setItem('adminToken', tokenEl.value.trim());
+    renderSkeleton();
     return api('/api/admin/submissions?status=' + encodeURIComponent(statusEl.value))
       .then(function(r){ if (!r.ok) return errFrom(r, 'Could not load submissions.').then(function(e){ throw e; }); return r.json(); })
-      .then(function(j){ render(j.submissions); })
-      .catch(function(e){ rowsEl.textContent = ''; show(e.message, 'error'); });
+      .then(function(j){ current = j.submissions; updateStats(current); render(); })
+      .catch(function(e){ current = []; updateStats(current); renderEmpty('Nothing to show.'); show(e.message, 'error'); });
   }
 
-  function viewShot(id){
+  /* ---------- modal helpers (focus trap) ---------- */
+  function focusables(root){
+    return Array.prototype.filter.call(root.querySelectorAll('button, a[href], input, select, [tabindex]:not([tabindex="-1"])'), function(el){
+      return !el.disabled && el.offsetParent !== null && !el.hidden;
+    });
+  }
+  function trap(e, root){
+    if (e.key !== 'Tab') return;
+    var f = focusables(root);
+    if (!f.length) { e.preventDefault(); root.focus(); return; }
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === root)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  function setLinks(enabled, name){
+    [openLink, dlLink].forEach(function(a){
+      if (enabled) { a.href = blobUrl; a.removeAttribute('aria-disabled'); a.style.display = 'inline-flex'; }
+      else { a.removeAttribute('href'); a.style.display = 'none'; }
+    });
+    dlLink.download = name || 'screenshot';
+  }
+
+  function viewShot(s, trigger){
     clearMsg();
-    api('/api/admin/screenshot?id=' + encodeURIComponent(id))
+    var seq = ++shotSeq;
+    lastFocus = trigger || document.activeElement;
+    if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+    shot.hidden = true; shot.removeAttribute('src');
+    shotErr.hidden = true; shotErr.textContent = '';
+    shotInfo.textContent = '';
+    stage.classList.remove('actual'); zoomBtn.textContent = 'Actual size'; zoomBtn.hidden = true;
+    shotCaption.textContent = s.reference + ' · @' + s.telegram_username;
+    setLinks(false);
+    spinner.hidden = false;
+    modal.classList.add('open');
+    document.getElementById('shot-close').focus();
+    if (trigger) trigger.disabled = true;
+
+    function fail(msg, detail){
+      if (seq !== shotSeq) return;
+      spinner.hidden = true; shot.hidden = true;
+      shotErr.hidden = false; shotErr.textContent = msg;
+      shotInfo.textContent = detail || '';
+    }
+
+    api('/api/admin/screenshot?id=' + encodeURIComponent(s.id))
       .then(function(r){ if (!r.ok) return errFrom(r, 'Could not load screenshot.').then(function(e){ throw e; }); return r.blob(); })
       .then(function(b){
-        if (blobUrl) URL.revokeObjectURL(blobUrl);
+        if (seq !== shotSeq) return;
+        var detail = (b.type || 'unknown type') + ' · ' + b.size + ' bytes';
+        if (!b.size) return fail('Could not display image: the file is empty.', detail);
+        if (!/^image\//.test(b.type)) return fail('Could not display image: unexpected file type.', detail);
         blobUrl = URL.createObjectURL(b);
+        setLinks(true, s.reference + '.' + (b.type.split('/')[1] || 'img'));
+        shot.onload = function(){
+          if (seq !== shotSeq) return;
+          spinner.hidden = true; shot.hidden = false; zoomBtn.hidden = false;
+          shotInfo.textContent = detail + ' · ' + shot.naturalWidth + '×' + shot.naturalHeight;
+        };
+        shot.onerror = function(){ fail('Could not display image', detail); };
         shot.src = blobUrl;
-        modal.classList.add('open');
       })
-      .catch(function(e){ show(e.message, 'error'); });
+      .catch(function(e){ fail(e.message); })
+      .then(function(){ if (trigger) trigger.disabled = false; });
   }
 
   function closeModal(){
+    shotSeq++;
     modal.classList.remove('open');
+    shot.onload = shot.onerror = null;
     shot.removeAttribute('src');
     if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
-  modal.addEventListener('click', closeModal);
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+  function toggleZoom(){
+    var actual = stage.classList.toggle('actual');
+    zoomBtn.textContent = actual ? 'Fit to screen' : 'Actual size';
+  }
+  document.getElementById('shot-close').addEventListener('click', closeModal);
+  zoomBtn.addEventListener('click', toggleZoom);
+  shot.addEventListener('click', toggleZoom);
+  modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
 
-  function review(s, action){
-    if (!window.confirm(action.charAt(0).toUpperCase() + action.slice(1) + ' ' + s.reference + ' (@' + s.telegram_username + ')?')) return;
-    api('/api/admin/review', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: s.id, action: action })
-    })
-      .then(function(r){ if (!r.ok) return errFrom(r, 'Could not update submission.').then(function(e){ throw e; }); return r.json(); })
-      .then(function(){ return load().then(function(){ show(s.reference + (action === 'approve' ? ' approved.' : ' rejected.'), 'ok'); }); })
-      .catch(function(e){ show(e.message, 'error'); });
+  /* ---------- styled confirm ---------- */
+  function ask(title, text, okLabel, danger){
+    return new Promise(function(resolve){
+      var prev = document.activeElement;
+      var ok = document.getElementById('confirm-ok');
+      var cancel = document.getElementById('confirm-cancel');
+      var box = confirmEl.firstElementChild;
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-text').textContent = text;
+      ok.textContent = okLabel;
+      ok.className = 'abtn ' + (danger ? 'danger' : 'primary');
+      confirmEl.classList.add('open');
+      cancel.focus();
+      function finish(v){
+        confirmEl.classList.remove('open');
+        ok.removeEventListener('click', onOk); cancel.removeEventListener('click', onCancel);
+        confirmEl.removeEventListener('click', onBack); document.removeEventListener('keydown', onKey, true);
+        if (prev && prev.focus) prev.focus();
+        resolve(v);
+      }
+      function onOk(){ finish(true); }
+      function onCancel(){ finish(false); }
+      function onBack(e){ if (e.target === confirmEl) finish(false); }
+      function onKey(e){
+        if (e.key === 'Escape') { e.stopPropagation(); finish(false); }
+        else trap(e, box);
+      }
+      ok.addEventListener('click', onOk); cancel.addEventListener('click', onCancel);
+      confirmEl.addEventListener('click', onBack); document.addEventListener('keydown', onKey, true);
+    });
   }
 
-  document.getElementById('load').addEventListener('click', load);
+  document.addEventListener('keydown', function(e){
+    if (!modal.classList.contains('open') || confirmEl.classList.contains('open')) return;
+    if (e.key === 'Escape') closeModal();
+    else trap(e, modal.firstElementChild);
+  });
+
+  function review(s, action, trigger){
+    var verb = action.charAt(0).toUpperCase() + action.slice(1);
+    ask(verb + ' submission', verb + ' ' + s.reference + ' (@' + s.telegram_username + ')?', verb, action === 'reject').then(function(yes){
+      if (!yes) return;
+      var buttons = trigger && trigger.parentNode ? trigger.parentNode.querySelectorAll('button') : [];
+      Array.prototype.forEach.call(buttons, function(b){ b.disabled = true; });
+      return api('/api/admin/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: s.id, action: action })
+      })
+        .then(function(r){ if (!r.ok) return errFrom(r, 'Could not update submission.').then(function(e){ throw e; }); return r.json(); })
+        .then(function(){ return load().then(function(){ toast(s.reference + (action === 'approve' ? ' approved.' : ' rejected.'), 'ok'); }); })
+        .catch(function(e){ toast(e.message, 'error'); Array.prototype.forEach.call(buttons, function(b){ b.disabled = false; }); });
+    });
+  }
+
+  var loadBtn = document.getElementById('load');
+  loadBtn.addEventListener('click', function(){ loadBtn.disabled = true; load().then(function(){ loadBtn.disabled = false; }); });
+  document.getElementById('logout').addEventListener('click', function(){
+    sessionStorage.removeItem('adminToken');
+    tokenEl.value = ''; current = []; updateStats(current); clearMsg();
+    renderEmpty('Token cleared. Enter your admin token and press Load.');
+    toast('Token cleared', 'ok');
+  });
   statusEl.addEventListener('change', load);
+  searchEl.addEventListener('input', render);
   tokenEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') load(); });
-  if (tokenEl.value) load();
+  if (tokenEl.value) load(); else renderEmpty('Enter your admin token and press Load.');
 })();
 </script>
+<script src="/assets/theme.js"></script>
 </body>
 </html>
