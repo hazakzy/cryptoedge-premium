@@ -21,10 +21,18 @@ module.exports = async (req, res) => {
     // Neon's HTTP driver returns BYTEA as a Buffer (or a "\x..." hex string in some versions)
     let bytes = row.screenshot;
     if (typeof bytes === 'string') {
-      bytes = Buffer.from(bytes.startsWith('\\x') ? bytes.slice(2) : bytes, bytes.startsWith('\\x') ? 'hex' : 'binary');
+      bytes = bytes.startsWith('\\x') ? Buffer.from(bytes.slice(2), 'hex') : Buffer.from(bytes, 'binary');
     } else if (!Buffer.isBuffer(bytes)) {
       bytes = Buffer.from(bytes);
     }
+    // Legacy rows saved before the submit fix hold the JSON text of a serialized Buffer.
+    if (bytes.length && bytes[0] === 0x7b && bytes.slice(0, 16).toString('latin1').startsWith('{"type":"Buffer"')) {
+      try {
+        const parsed = JSON.parse(bytes.toString('utf8'));
+        if (parsed && Array.isArray(parsed.data)) bytes = Buffer.from(parsed.data);
+      } catch (e) { /* keep raw bytes */ }
+    }
+    if (!bytes.length) return res.status(404).json({ error: 'Screenshot is empty' });
     const type = ALLOWED_TYPES.includes(row.screenshot_type) ? row.screenshot_type : 'application/octet-stream';
 
     res.setHeader('Content-Type', type);
