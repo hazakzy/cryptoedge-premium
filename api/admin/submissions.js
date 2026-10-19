@@ -13,11 +13,12 @@ module.exports = async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
     const rows = await sql`
-      SELECT id, telegram_username, method, tx_hash, status, created_at, approved_at, expires_at,
-             (screenshot IS NOT NULL) AS has_screenshot
-      FROM submissions
+      SELECT s.id, telegram_username, s.telegram_user_id, method, tx_hash, status, created_at, approved_at, expires_at,
+             (screenshot IS NOT NULL) AS has_screenshot, d.state AS delivery_state,
+             d.attempts AS delivery_attempts, d.next_attempt_at, d.last_error
+      FROM submissions s LEFT JOIN membership_deliveries d ON d.submission_id=s.id
       WHERE (${status} = 'all' OR status = ${status})
-      ORDER BY created_at DESC, id DESC
+      ORDER BY created_at DESC, s.id DESC
       LIMIT 100
     `;
     res.setHeader('Cache-Control', 'private, no-store');
