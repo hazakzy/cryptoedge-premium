@@ -243,6 +243,11 @@
       pill.className = 'pill ' + (['pending','approved','rejected'].indexOf(s.status) >= 0 ? s.status : '');
       pill.textContent = s.status;
       st.appendChild(pill);
+      var delivery = document.createElement('div');
+      delivery.textContent = s.status === 'approved'
+        ? (s.delivery_state ? 'Invite: ' + s.delivery_state + ' · attempts: ' + s.delivery_attempts + (s.last_error ? ' · error: ' + s.last_error : '') : 'Legacy: needs reconciliation')
+        : (s.telegram_user_id ? 'Linked Telegram ID: ' + s.telegram_user_id : 'Waiting for private Start link');
+      st.appendChild(delivery);
       var act = cell(tr, '', 'actions');
       if (s.has_screenshot) act.appendChild(btn('View screenshot', '', function(b){ viewShot(s, b); }));
       if (s.status === 'pending') {
@@ -386,15 +391,20 @@
   });
 
   function review(s, action, trigger){
+    var verifiedHash = s.tx_hash || '';
+    if (action === 'approve') {
+      verifiedHash = window.prompt('Manually verify the transaction on the correct network, recipient, amount and confirmations. Enter the verified transaction hash:', verifiedHash);
+      if (!verifiedHash) return;
+    }
     var verb = action.charAt(0).toUpperCase() + action.slice(1);
-    ask(verb + ' submission', verb + ' ' + s.reference + ' (@' + s.telegram_username + ')?', verb, action === 'reject').then(function(yes){
+    ask(verb + ' submission', (action === 'approve' ? 'I have manually verified this payment. Grant 30 days for ' : 'Reject ') + s.reference + ' (@' + s.telegram_username + ')?', verb, action === 'reject').then(function(yes){
       if (!yes) return;
       var buttons = trigger && trigger.parentNode ? trigger.parentNode.querySelectorAll('button') : [];
       Array.prototype.forEach.call(buttons, function(b){ b.disabled = true; });
       return api('/api/admin/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: s.id, action: action })
+        body: JSON.stringify({ id: s.id, action: action, verified: action === 'approve', tx_hash: verifiedHash })
       })
         .then(function(r){ if (!r.ok) return errFrom(r, 'Could not update submission.').then(function(e){ throw e; }); return r.json(); })
         .then(function(){ return load().then(function(){ toast(s.reference + (action === 'approve' ? ' approved.' : ' rejected.'), 'ok'); }); })

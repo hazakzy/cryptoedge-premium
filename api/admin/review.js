@@ -4,35 +4,29 @@ const { requireAdmin } = require('../_auth');
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!requireAdmin(req, res)) return;
-
   const body = req.body || {};
-  const idStr = String(body.id === undefined || body.id === null ? '' : body.id);
-  const action = String(body.action || '');
-  if (!/^\d{1,9}$/.test(idStr)) return res.status(400).json({ error: 'Invalid id' });
-  if (action !== 'approve' && action !== 'reject') return res.status(400).json({ error: 'Invalid action' });
-  const id = parseInt(idStr, 10);
-
+  const id = String(body.id ?? '');
+  const action = body.action;
+  if (!/^\d{1,9}$/.test(id)) return res.status(400).json({ error: 'Invalid id' });
+  if (!['approve', 'reject'].includes(action)) return res.status(400).json({ error: 'Invalid action' });
+  if (action === 'approve' && body.verified !== true)
+    return res.status(400).json({ error: 'Confirm you manually verified the payment on the correct network, recipient and amount.' });
   try {
     const sql = neon(process.env.DATABASE_URL);
-    const rows = action === 'approve'
-      ? await sql`
-          UPDATE submissions
-          SET status = 'approved', approved_at = now(), expires_at = now() + interval '30 days'
-          WHERE id = ${id} AND status = 'pending'
-          RETURNING id, telegram_username, method, tx_hash, status, created_at, approved_at, expires_at
-        `
-      : await sql`
-          UPDATE submissions SET status = 'rejected'
-          WHERE id = ${id} AND status = 'pending'
-          RETURNING id, telegram_username, method, tx_hash, status, created_at, approved_at, expires_at
-        `;
-    if (rows.length) return res.status(200).json({ ok: true, submission: { ...rows[0], reference: `CE-${rows[0].id}` } });
-
-    const exists = await sql`SELECT 1 FROM submissions WHERE id = ${id}`;
-    if (!exists.length) return res.status(404).json({ error: 'Submission not found' });
-    return res.status(409).json({ error: 'Submission already reviewed' });
+    const rows = await sql`SELECT * FROM review_payment(${Number(id)}, ${action}, ${body.verified === true}, ${String(body.tx_hash || '')})`;
+    const s = rows[0];
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json({ ok: true, submission: {
+      id: s.id, reference: `CE-${s.id}`, status: s.status, expires_at: s.expires_at
+    }, delivery: action === 'approve' ? 'queued' : undefined });
   } catch (err) {
-    console.error('admin review error', err);
+    if (err.code === '23505') return res.status(409).json({ error: 'Transaction already submitted or used for membership.' });
+    const message = String(err.message || '');
+    const known = ['Submission not found', 'Submission already reviewed', 'Manual payment verification required', 'Legacy approval requires manual reconciliation',
+      'Subscriber must open their private Start link first', 'A verified transaction hash is required'];
+    const safe = known.find(x => message.includes(x));
+    if (safe) return res.status(safe === 'Submission not found' ? 404 : 409).json({ error: safe });
+    console.error('admin review failed', err.code);
     return res.status(500).json({ error: 'Could not update submission.' });
   }
 };

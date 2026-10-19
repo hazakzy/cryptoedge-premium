@@ -1,4 +1,5 @@
 const { neon } = require('@neondatabase/serverless');
+const { randomBytes } = require('node:crypto');
 
 const METHODS = ['BTC', 'USDT_BSC', 'USDT_ARB'];
 const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024; // 2 MB
@@ -21,8 +22,8 @@ module.exports = async (req, res) => {
   if (!METHODS.includes(method)) {
     return res.status(400).json({ error: 'Choose a payment method.' });
   }
-  if (txHash.length > 200) {
-    return res.status(400).json({ error: 'Transaction hash is too long.' });
+  if (txHash && !(method === 'BTC' ? /^[a-fA-F0-9]{64}$/ : /^0x[a-fA-F0-9]{64}$/i).test(txHash)) {
+    return res.status(400).json({ error: 'Enter a valid transaction hash for the selected network.' });
   }
   if (!txHash && !shot) {
     return res.status(400).json({ error: 'Provide a transaction hash or a payment screenshot.' });
@@ -47,13 +48,16 @@ module.exports = async (req, res) => {
     // The Neon HTTP driver JSON-encodes query params, so a Buffer would be stored as the text
     // {"type":"Buffer","data":[...]}. Send a hex bytea literal and cast it explicitly instead.
     const shotHex = shotBytes ? '\\x' + shotBytes.toString('hex') : null;
+    const linkToken = randomBytes(24).toString('hex');
     const rows = await sql`
-      INSERT INTO submissions (telegram_username, method, tx_hash, screenshot, screenshot_type)
-      VALUES (${username}, ${method}, ${txHash || null}, ${shotHex}::bytea, ${shot ? shotType : null})
+      INSERT INTO submissions (telegram_username, method, tx_hash, screenshot, screenshot_type, link_token)
+      VALUES (${username}, ${method}, ${txHash || null}, ${shotHex}::bytea, ${shot ? shotType : null}, ${linkToken})
       RETURNING id
     `;
-    return res.status(201).json({ ok: true, reference: `CE-${rows[0].id}` });
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(201).json({ ok: true, reference: `CE-${rows[0].id}`, start_token: linkToken });
   } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'This transaction was already submitted. Contact the admin with your existing reference.' });
     console.error('submit error', err);
     return res.status(500).json({ error: 'Could not save your submission. Please try again.' });
   }

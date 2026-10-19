@@ -175,8 +175,8 @@ document.getElementById('submit').addEventListener('click', async () => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Submission failed');
     result.innerHTML = `<div class="msg ok">Received. Your reference is <b>${data.reference}</b>. We'll check your payment within 12 hours.</div>
-      <a class="tg-btn" href="https://t.me/thetce_bot?start=${data.reference}" target="_blank" rel="noopener noreferrer">
-        Open @thetce_bot to get your invite link
+      <a class="tg-btn" href="https://t.me/${config.telegram_bot_username}?start=${data.start_token}" target="_blank" rel="noopener noreferrer">
+        Open @${config.telegram_bot_username} to get your invite link
       </a>
       <p class="tg-note">Tap the button and press Start. Your invite link will arrive there after approval.</p>`;
     document.getElementById('tx').value = ''; document.getElementById('shot').value = '';
