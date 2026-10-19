@@ -92,6 +92,12 @@
   <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text" tabindex="-1">
     <h2 id="confirm-title">Confirm</h2>
     <p id="confirm-text"></p>
+    <div id="confirm-fields" class="confirm-fields" hidden>
+      <label for="confirm-hash">Verified transaction hash</label>
+      <input id="confirm-hash" type="text" autocomplete="off" spellcheck="false" maxlength="66" pattern="(?:0[xX])?[A-Fa-f0-9]{64}">
+      <label class="confirm-check"><input id="confirm-verified" type="checkbox"> I manually verified the network, recipient, amount and confirmations.</label>
+      <p>Screenshots and hash format alone do not verify payment.</p>
+    </div>
     <div class="confirm-actions">
       <button type="button" class="abtn" id="confirm-cancel">Cancel</button>
       <button type="button" class="abtn primary" id="confirm-ok">Confirm</button>
@@ -353,12 +359,20 @@
   modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
 
   /* ---------- styled confirm ---------- */
-  function ask(title, text, okLabel, danger){
+  function ask(title, text, okLabel, danger, approval){
     return new Promise(function(resolve){
       var prev = document.activeElement;
       var ok = document.getElementById('confirm-ok');
       var cancel = document.getElementById('confirm-cancel');
       var box = confirmEl.firstElementChild;
+      var fields = document.getElementById('confirm-fields');
+      var hash = document.getElementById('confirm-hash');
+      var verified = document.getElementById('confirm-verified');
+      fields.hidden = !approval;
+      hash.required = !!approval;
+      verified.required = !!approval;
+      hash.value = approval ? approval.hash : '';
+      verified.checked = false;
       document.getElementById('confirm-title').textContent = title;
       document.getElementById('confirm-text').textContent = text;
       ok.textContent = okLabel;
@@ -372,7 +386,13 @@
         if (prev && prev.focus) prev.focus();
         resolve(v);
       }
-      function onOk(){ finish(true); }
+      function onOk(){
+        if (approval) {
+          hash.value = hash.value.trim();
+          if (!hash.reportValidity() || !verified.reportValidity()) return;
+          finish({ txHash: hash.value });
+        } else finish(true);
+      }
       function onCancel(){ finish(false); }
       function onBack(e){ if (e.target === confirmEl) finish(false); }
       function onKey(e){
@@ -391,20 +411,15 @@
   });
 
   function review(s, action, trigger){
-    var verifiedHash = s.tx_hash || '';
-    if (action === 'approve') {
-      verifiedHash = window.prompt('Manually verify the transaction on the correct network, recipient, amount and confirmations. Enter the verified transaction hash:', verifiedHash);
-      if (!verifiedHash) return;
-    }
     var verb = action.charAt(0).toUpperCase() + action.slice(1);
-    ask(verb + ' submission', (action === 'approve' ? 'I have manually verified this payment. Grant 30 days for ' : 'Reject ') + s.reference + ' (@' + s.telegram_username + ')?', verb, action === 'reject').then(function(yes){
+    ask(verb + ' submission', (action === 'approve' ? 'Verify payment and grant 30 days for ' : 'Reject ') + s.reference + ' (@' + s.telegram_username + ')?', verb, action === 'reject', action === 'approve' ? { hash: s.tx_hash || '' } : null).then(function(yes){
       if (!yes) return;
       var buttons = trigger && trigger.parentNode ? trigger.parentNode.querySelectorAll('button') : [];
       Array.prototype.forEach.call(buttons, function(b){ b.disabled = true; });
       return api('/api/admin/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: s.id, action: action, verified: action === 'approve', tx_hash: verifiedHash })
+        body: JSON.stringify({ id: s.id, action: action, verified: action === 'approve', tx_hash: yes.txHash || '' })
       })
         .then(function(r){ if (!r.ok) return errFrom(r, 'Could not update submission.').then(function(e){ throw e; }); return r.json(); })
         .then(function(){ return load().then(function(){ toast(s.reference + (action === 'approve' ? ' approved.' : ' rejected.'), 'ok'); }); })
