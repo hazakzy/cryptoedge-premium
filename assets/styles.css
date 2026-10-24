@@ -430,3 +430,72 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .reveal-ready{opacity:1;transform:none}
 
 .promo-label{display:inline-block;color:var(--accent-text);background:var(--accent-soft);border:1px solid var(--border);padding:5px 10px;border-radius:7px;font-size:10px;font-weight:750;letter-spacing:.12em;margin-bottom:10px}
+
+/* Compact type scale and spacing */
+.page{max-width:1080px;padding-top:36px;padding-bottom:44px}
+.topbar-inner{max-width:1080px;padding-top:8px;padding-bottom:8px}
+.brand{font-size:12px}
+.logo{width:28px;height:28px;border-radius:8px;font-size:11px}
+.landing-page .hero{padding:36px 0 20px;margin-bottom:36px}
+.hero{padding:24px 0 16px;margin-bottom:30px}
+.hero h1{font-size:clamp(30px,4.3vw,50px);line-height:1.12;max-width:720px}
+.hero .lead{font-size:15px;line-height:1.7;max-width:590px;margin-top:16px;margin-bottom:18px}
+.hero-points{font-size:12px;gap:4px;margin-bottom:18px}
+.hero-actions{margin-top:18px;gap:10px}
+.cta-note{margin-top:12px}
+.card,.tiers .card,.checkout-page .card{padding:22px;border-radius:16px}
+.card h3{font-size:18px}
+.card .sub{font-size:13px;margin-bottom:16px}
+.btn,.cta{min-height:44px;padding:10px 18px;font-size:14px}
+.how{gap:14px;margin-bottom:32px}
+.how li{padding:18px!important;border-radius:14px!important;font-size:13px}
+.tiers{gap:16px;margin-bottom:32px}
+.section-title{margin-bottom:14px}
+.band{padding:22px;border-radius:16px}
+.band h2{font-size:20px}
+.mentorship{padding-top:42px;margin-top:42px;margin-bottom:24px}
+.section-intro{margin-bottom:24px}
+.section-intro h2{font-size:clamp(26px,3.2vw,36px);line-height:1.15}
+.section-intro .lead{font-size:14px;line-height:1.7}
+.course-grid{gap:16px}
+.course-card{padding:22px}
+.course-card h3{font-size:22px;margin:14px 0 6px}
+.course-tagline{font-size:13px;margin-bottom:8px}
+.course-card .sub{font-size:13px;line-height:1.7;margin-bottom:16px}
+.course-prices{gap:16px;padding-top:8px;margin-bottom:16px}
+.course-prices div{padding-top:10px}
+.course-prices dd{font-size:30px;margin-top:3px}
+.course-actions{gap:8px}
+.course-actions .btn{font-size:12px;padding:10px 8px}
+.bundle{padding:24px;margin-top:20px;gap:20px}
+.bundle h3{font-size:20px}
+.bundle-price b{font-size:25px}
+.academy-faq{padding-top:10px}
+.academy-faq h3{font-size:19px}
+.academy-faq details{padding:14px 0}
+.course-note{font-size:12px;margin:16px 0 24px}
+.checkout-page .plan .price{font-size:46px}
+.checkout-path{gap:12px;margin-bottom:22px}
+.checkout-path li{padding:14px}
+.admin-head h1{font-size:28px}
+.admin-description{font-size:14px}
+.admin-page .bar{padding:14px}
+.admin-page .stat{padding:16px}
+.admin-page .stat b{font-size:26px}
+.contact,.legal{padding:22px}
+@media(max-width:760px){
+ .page{padding:24px 18px 36px}
+ .landing-page .hero{padding:22px 0 14px;margin-bottom:28px}
+ .hero h1{font-size:33px}
+ .hero .lead{font-size:14px}
+ .section-intro h2{font-size:28px}
+ .mentorship{padding-top:32px;margin-top:32px}
+ .course-card,.checkout-page .card{padding:20px}
+ .course-card h3{font-size:21px}
+ .course-prices dd{font-size:28px}
+ .bundle{padding:20px}
+ .bundle h3{font-size:19px}
+ .brand{font-size:10px}
+ .topbar-inner{padding-top:8px;padding-bottom:8px}
+ .hero-actions .btn{width:auto;flex:1 1 140px}
+}
