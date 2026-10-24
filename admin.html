@@ -24,7 +24,7 @@
 
 <main class="page admin-page">
   <div class="admin-head">
-    <h1>Admin review</h1>
+    <div><span class="eyebrow">Membership operations</span><h1>Payment review</h1><p class="admin-description">Review submissions, verify payments and manage membership access.</p></div>
     <button class="abtn" id="logout" type="button">Logout / clear token</button>
   </div>
 
@@ -34,7 +34,7 @@
     <div class="stat rejected"><span>Rejected</span><b id="stat-rejected">0</b></div>
   </div>
 
-  <div class="bar">
+  <p class="review-guide">Check the network, recipient, amount and confirmations before approving. A screenshot alone does not verify payment.</p><div class="bar">
     <label class="sr-only" for="token">Admin token</label>
     <input id="token" type="password" placeholder="Admin token" autocomplete="off">
     <button class="abtn primary" id="load" type="button">Load</button>
@@ -53,7 +53,7 @@
   <div class="wrap">
     <table>
       <thead><tr><th>Ref</th><th>Username</th><th>Method</th><th>Tx hash</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="rows"></tbody>
+      <tbody id="rows"><tr><td colspan="7" class="full empty">Enter your admin token and select Load to view submissions.</td></tr></tbody>
     </table>
   </div>
 
@@ -442,5 +442,7 @@
 })();
 </script>
 <script src="/assets/theme.js"></script>
+<script src="/assets/polish.js"></script>
 </body>
 </html>
+
