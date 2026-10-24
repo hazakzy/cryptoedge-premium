@@ -499,3 +499,84 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
  .topbar-inner{padding-top:8px;padding-bottom:8px}
  .hero-actions .btn{width:auto;flex:1 1 140px}
 }
+
+
+/* Hierarchy review: quieter surfaces, readable course metadata */
+.landing-page .card{background:var(--surface);box-shadow:none}
+.landing-page .course-card:hover{box-shadow:0 10px 24px -20px rgba(20,100,70,.3)}
+.landing-page .course-card .badge,.landing-page .course-count{font-size:11px;letter-spacing:.05em}
+.quiet-link{color:var(--muted);text-underline-offset:4px;text-decoration-color:var(--border-strong)}
+.quiet-link:hover{color:var(--accent-text)}
+.landing-page .hero-points{margin-bottom:18px}
+
+/* Direction 2: editorial hero and purposeful product details */
+.landing-page .hero-editorial{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center;text-align:left;padding:40px 0 34px;margin-bottom:28px}
+.hero-editorial .hero-copy{min-width:0}
+.hero-editorial h1{font-size:clamp(33px,3.5vw,46px);line-height:1.14;margin:0;letter-spacing:-.045em}
+.hero-editorial .lead{font-size:15px;margin:20px 0 24px;max-width:420px;line-height:1.8}
+.hero-editorial .hero-actions{justify-content:flex-start;margin:0;gap:10px}
+.hero-editorial .btn{font-size:13px;gap:18px;padding:12px 18px}
+.hero-editorial .cta-note{font-size:11px;display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:18px 0 12px}
+.intro-dot{width:6px;height:6px;background:var(--accent);border-radius:50%}
+.hero-free{font-size:12px;display:inline-flex;align-items:center;min-height:36px}
+.signal-preview{border:1px solid var(--border-strong);border-radius:20px;background:var(--surface);box-shadow:0 24px 70px -45px rgba(0,0,0,.6);padding:24px;min-width:0;position:relative}
+.preview-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid var(--border);gap:10px}
+.preview-brand{color:var(--accent-text);font-weight:800;font-size:14px;display:flex;align-items:center;gap:10px}
+.preview-brand span{font-size:9px;letter-spacing:.11em;color:var(--muted);font-weight:600}
+.preview-tag{font-size:10px;border:1px solid var(--border);border-radius:5px;padding:3px 7px;color:var(--muted)}
+.preview-heading{display:flex;align-items:center;justify-content:space-between;margin:22px 0 16px;gap:12px}
+.preview-caption{font-size:9px;letter-spacing:.12em;color:var(--muted)}
+.preview-heading h2{font-size:25px;letter-spacing:-.03em;margin:5px 0 0}
+.direction{font-size:11px;font-weight:700;color:var(--accent-text);background:var(--accent-soft);padding:6px 10px;border-radius:6px}
+.example-chart{color:var(--muted);margin:10px 0 18px}.example-chart svg{width:100%;height:90px;display:block}
+.preview-levels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0 0 20px}
+.preview-levels div{padding-top:12px;border-top:1px solid var(--border)}
+.preview-levels dt{font-size:11px;color:var(--muted)}
+.preview-levels dd{font:600 17px ui-monospace,monospace;margin:5px 0 0}
+.preview-foot{display:flex;gap:10px;align-items:center;background:var(--surface-2);padding:12px;border-radius:10px}
+.preview-status{color:var(--accent-text);font-size:22px}.preview-foot p{font-size:11px;margin:0}.preview-foot small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.value-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:18px 0;margin-bottom:38px;font-size:12px;color:var(--text-soft)}
+.value-strip b{font:11px ui-monospace,monospace;color:var(--accent-text);margin-right:9px}
+.section-heading{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:20px}
+.section-heading .section-title{margin:0 0 7px}.section-heading h2{font-size:24px;line-height:1.25;letter-spacing:-.035em;margin:0}.section-heading>p{font-size:12px;color:var(--muted);margin:0}
+.landing-page .how li{box-shadow:none!important;background:transparent;border:none;border-left:1px solid var(--border);border-radius:0!important;padding:10px 18px!important}
+.landing-page .course-card{position:relative;background:var(--surface);border-radius:16px}
+.course-symbol{width:35px;height:35px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-text);border:1px solid var(--border);border-radius:10px;font-size:23px;margin-top:18px}
+.course-card h3{margin-top:12px}.landing-page .course-card::before{display:none}
+.course-card .badge{background:transparent;color:var(--muted);padding:0;letter-spacing:0;text-transform:none;font-weight:400}
+.course-prices{background:var(--surface-2);padding:13px;border-radius:10px;margin:0 0 14px;gap:14px}.course-prices div{border:0;padding:0}.course-prices dd{font-size:26px}.course-prices dt{font-size:10px}
+.landing-page .bundle{box-shadow:none;background:var(--surface-2)}
+.landing-page .legal{background:transparent;border:0;border-top:1px solid var(--border);border-radius:0;padding:24px 0;font-size:12px}
+@media(max-width:800px){.landing-page .hero-editorial{grid-template-columns:1fr;gap:28px;padding-top:20px}.hero-editorial h1{font-size:35px}.hero-editorial .lead{max-width:540px}.signal-preview{padding:20px}.value-strip{gap:12px;font-size:11px}.value-strip b{display:block;margin:0 0 5px}.section-heading{display:block}.section-heading>p{margin-top:8px}.section-heading h2{font-size:22px}}
+@media(max-width:420px){.hero-editorial .hero-actions .btn{flex:1;padding:11px 12px;font-size:12px;gap:8px}.hero-editorial h1{font-size:32px}.preview-levels dd{font-size:16px}.preview-brand span{font-size:8px}.preview-foot small{font-size:10px}.hero-editorial .cta-note{font-size:10px}}
+
+/* Separate learning destination and concise homepage overview */
+.public-nav{display:flex;align-items:center;gap:8px}.public-nav [aria-current=page]{color:var(--accent-text)}
+.academy-overview{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:38px 0;margin:38px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);scroll-margin-top:90px}
+.academy-overview h2{font-size:32px;line-height:1.2;letter-spacing:-.035em;margin:0 0 16px}.academy-overview p{font-size:14px;color:var(--muted);line-height:1.8;max-width:420px;margin:0 0 20px}
+.academy-subjects{list-style:none;padding:0;margin:0}.academy-subjects li{display:flex;align-items:center;gap:14px;padding:18px 0;border-bottom:1px solid var(--border)}.academy-subjects li:last-child{border:0}.academy-subjects span{font:11px ui-monospace,monospace;color:var(--accent-text)}.academy-subjects b{font-size:14px;font-weight:600}.academy-subjects small{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
+.mentorship-hero{padding:32px 0 20px}.mentorship-hero h1{font-size:clamp(32px,4vw,46px)}.mentorship-hero .accent-word{color:var(--accent-text)}
+.mentorship-page .mentorship-catalogue{border-top:0;padding-top:0;margin-top:0}.mentorship-page .section-intro h2{font-size:28px}.mentorship-page .course-card{box-shadow:none}.mentorship-page .bundle{box-shadow:none}.learning-note{padding:24px 0;border-top:1px solid var(--border);margin:30px 0}.learning-note h2{font-size:20px}.learning-note p{font-size:13px;color:var(--muted);max-width:760px}.learning-note a{font-size:13px}
+@media(max-width:760px){.academy-overview{grid-template-columns:1fr;gap:20px;padding:28px 0}.academy-overview h2{font-size:27px}.public-nav{gap:0}.public-nav .nav-link{font-size:11px;padding:0 4px}.topbar-inner{gap:6px}.topbar-actions{gap:2px}.theme-toggle{width:36px;height:36px}.brand{letter-spacing:.01em}.mentorship-hero h1{font-size:32px}.mentorship-page .section-intro h2{font-size:24px}}
+@media(max-width:360px){.brand{font-size:9px;gap:4px}.logo{width:24px;height:24px}.topbar-inner{padding-left:10px;padding-right:10px}.public-nav .nav-link{font-size:10px}}
+
+/* Mentorship: horizontal rectangular course cards */
+.mentorship-page .course-grid{grid-template-columns:1fr;gap:16px}
+.mentorship-page .course-card{display:grid;grid-template-columns:minmax(0,1fr) 290px;column-gap:36px;row-gap:0;padding:22px 26px;border-radius:12px;background:var(--surface);align-items:start}
+.mentorship-page .course-card .card-head{grid-column:1;grid-row:1;margin:0 0 12px}
+.mentorship-page .course-card .course-symbol{grid-column:1;grid-row:2;width:30px;height:30px;font-size:20px;margin:0 0 10px}
+.mentorship-page .course-card h3{grid-column:1;grid-row:3;font-size:22px;margin:0 0 6px}
+.mentorship-page .course-card .course-tagline{grid-column:1;grid-row:4;margin:0 0 6px}
+.mentorship-page .course-card .sub{grid-column:1;grid-row:5;max-width:600px;margin:0;line-height:1.65}
+.mentorship-page .course-card .course-prices{grid-column:2;grid-row:1/4;align-self:end;margin:0 0 14px;padding:16px;border-radius:8px}
+.mentorship-page .course-card .course-actions{grid-column:2;grid-row:4/6;display:grid;grid-template-columns:1fr;gap:8px;align-self:start}
+.mentorship-page .course-card .course-actions .btn{min-height:40px}
+.mentorship-page .course-card::before{display:none}
+@media(max-width:700px){
+ .mentorship-page .course-card{display:flex;padding:20px;border-radius:10px}
+ .mentorship-page .course-card .course-symbol{margin-bottom:10px}
+ .mentorship-page .course-card .card-head{width:100%}
+ .mentorship-page .course-card .sub{margin-bottom:18px}
+ .mentorship-page .course-card .course-prices{width:100%;margin-bottom:12px;align-self:auto}
+ .mentorship-page .course-card .course-actions{width:100%;grid-template-columns:1fr 1fr;align-self:auto}
+}
