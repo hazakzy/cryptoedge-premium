@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "test": "node tests/payments.cjs && node --test tests/api.cjs tests/intelligence.cjs"
+    "test": "node tests/payments.cjs && node --test tests/api.cjs tests/intelligence.cjs",
+    "test:intelligence": "python -B -m unittest discover -s intelligence_worker/tests -v"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10"
@@ -12,4 +13,3 @@
     "@neondatabase/serverless": "^0.9.0"
   }
 }
-

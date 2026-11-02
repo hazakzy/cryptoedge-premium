@@ -11,3 +11,8 @@ Review payment submissions (including screenshots) at `/admin.html`.
 
 
 See [PHASE1.md](PHASE1.md) for the required migration, bot integration, tests and controlled rollout.
+
+## Free Intelligence and BTC signals
+
+The website introduces the free public Telegram channel. The separate Python research worker lives in [intelligence_worker/](intelligence_worker/README.md) in this same repository and deploys to Railway from that subdirectory. It uses process memory only; Intelligence requires no Neon database, volume or website archive. The existing payment database remains separate. See [INTELLIGENCE.md](INTELLIGENCE.md) for the current offer and retirement of the earlier website feed.
+
