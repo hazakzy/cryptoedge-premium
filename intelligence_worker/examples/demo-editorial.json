@@ -1,0 +1,29 @@
+{
+  "news": [
+    {
+      "status": "verified",
+      "reviewed_by": "fictional-demo-editor",
+      "source_url": "https://example.org/fictional-announcement",
+      "published_at": "2026-11-01T07:00:00Z",
+      "verified_at": "2026-11-01T07:30:00Z",
+      "valid_from": "2026-11-01T07:30:00Z",
+      "valid_until": "2026-11-01T20:00:00Z",
+      "id": "demo-news",
+      "subscriber_copy": "Demonstration: a protocol upgrade is planned. A sustained market response is still required."
+    }
+  ],
+  "events": [
+    {
+      "status": "verified",
+      "reviewed_by": "fictional-demo-editor",
+      "source_url": "https://example.org/fictional-announcement",
+      "published_at": "2026-11-01T07:00:00Z",
+      "verified_at": "2026-11-01T07:30:00Z",
+      "valid_from": "2026-11-01T07:30:00Z",
+      "valid_until": "2026-11-01T20:00:00Z",
+      "id": "demo-event",
+      "event_at": "2026-11-01T13:30:00Z",
+      "subscriber_copy": "Fictional macro release for layout demonstration only."
+    }
+  ]
+}

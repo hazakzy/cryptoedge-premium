@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "mode": "demonstration",
+  "as_of": "2026-11-01T08:00:00+00:00",
+  "markets": {
+    "BTCUSDT": {
+      "stance": "up"
+    },
+    "ETHUSDT": {
+      "stance": "mixed"
+    },
+    "SOLUSDT": {
+      "stance": "up"
+    },
+    "XRPUSDT": {
+      "stance": "mixed"
+    },
+    "HYPEUSDT": {
+      "stance": "down"
+    }
+  },
+  "order_flow": {},
+  "defi": [
+    {
+      "name": "Example protocol",
+      "change_7d": 8.0
+    }
+  ],
+  "news_candidates": [],
+  "failures": {}
+}
