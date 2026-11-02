@@ -15,8 +15,9 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem(KEY, next); } catch (e) {}
       var m = document.querySelector('meta[name="theme-color"]');
-      if (m) m.setAttribute('content', next === 'light' ? '#f4f7fb' : '#070a0f');
+      if (m) m.setAttribute('content', next === 'light' ? '#f5f7f6' : '#080d12');
       document.querySelectorAll('[data-theme-toggle]').forEach(sync);
     });
   });
 })();
+
