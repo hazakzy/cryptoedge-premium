@@ -16,8 +16,8 @@ module.exports=async (req,res)=>{
       const rows=await sql`WITH pruned AS (
         DELETE FROM public_intelligence_briefs WHERE edition_date < (now() AT TIME ZONE 'Europe/London')::date-6
       ), added AS (
-        INSERT INTO public_intelligence_briefs(edition_date,as_of,title,preview,body,content_hash)
-        VALUES(${p.edition_date}::date,${p.as_of}::timestamptz,${p.title},${p.preview},${p.body},${p.hash})
+        INSERT INTO public_intelligence_briefs(edition_date,as_of,title,preview,highlights,content_hash)
+        VALUES(${p.edition_date}::date,${p.as_of}::timestamptz,${p.title},${p.preview},${p.highlights},${p.hash})
         ON CONFLICT(edition_date) DO NOTHING RETURNING content_hash
       ) SELECT content_hash FROM added UNION ALL
         SELECT content_hash FROM public_intelligence_briefs WHERE edition_date=${p.edition_date}::date LIMIT 1`;
@@ -32,7 +32,7 @@ module.exports=async (req,res)=>{
   if(!process.env.DATABASE_URL)return res.status(200).json({briefs:[],status:'preparing'});
   try{
     const sql=neon(process.env.DATABASE_URL);
-    const rows=await sql`SELECT edition_date::text AS edition_date,as_of,title,preview,body
+    const rows=await sql`SELECT edition_date::text AS edition_date,as_of,title,preview,highlights
       FROM public_intelligence_briefs WHERE edition_date >= (now() AT TIME ZONE 'Europe/London')::date-6
       ORDER BY edition_date DESC LIMIT ${Number(limit)}`;
     return res.status(200).json({briefs:rows,status:rows.length?'published':'preparing'});
@@ -42,4 +42,4 @@ module.exports=async (req,res)=>{
     return res.status(503).json({error:'The latest brief is temporarily unavailable'});
   }
 };
-module.exports.config={api:{bodyParser:{sizeLimit:'24kb'}}};
+module.exports.config={api:{bodyParser:{sizeLimit:'8kb'}}};

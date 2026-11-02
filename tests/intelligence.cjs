@@ -16,7 +16,7 @@ Module._load=function(name,...args){
 };
 const handler=require('../api/intelligence');Module._load=original;
 const secret='test-publisher-secret-with-more-than-32-characters';
-function publication(){const now=new Date();return {edition_date:ukDate(now),as_of:now.toISOString(),title:'Daily market brief',preview:'A focused view of the market.',body:'MARKET OUTLOOK\nMixed conditions. Wait for confirmation.'};}
+function publication(){const now=new Date();return {edition_date:ukDate(now),as_of:now.toISOString(),title:'Daily market brief',preview:'A focused view of the market.',highlights:'MARKET OUTLOOK\nMixed conditions. Wait for confirmation.'};}
 function response(){return {code:200,headers:{},status(c){this.code=c;return this;},setHeader(k,v){this.headers[k]=v;},json(b){this.body=b;return this;}};}
 function request(method,body,token=secret){return {method,body,headers:{authorization:'Bearer '+token},query:{}};}
 before(async()=>{db=new PGlite();await db.exec(fs.readFileSync(path.join(__dirname,'../sql/intelligence.sql'),'utf8'));});
@@ -25,7 +25,7 @@ after(async()=>{await db.close();});
 test('free public read needs no account or authorization',async()=>{
   const p=publication(),sent=response();await handler(request('POST',p),sent);assert.equal(sent.code,200);
   const read=response();await handler({method:'GET',headers:{},query:{}},read);
-  assert.equal(read.code,200);assert.equal(read.body.briefs[0].body,p.body);
+  assert.equal(read.code,200);assert.equal(read.body.briefs[0].highlights,p.highlights);assert.ok(!('body' in read.body.briefs[0]));
   assert.match(read.headers['Cache-Control'],/s-maxage=300/);assert.ok(calls.every(s=>!s.includes('members')));
 });
 test('publishing rejects incorrect credentials before database access',async()=>{
@@ -37,17 +37,17 @@ test('identical publication retries do not duplicate an edition',async()=>{
 });
 test('conflicting content cannot silently overwrite a published brief',async()=>{
   const p=publication();await handler(request('POST',p),response());const res=response();
-  await handler(request('POST',{...p,body:'Different conclusion'}),res);assert.equal(res.code,409);
-  assert.equal((await db.query('SELECT body FROM public_intelligence_briefs')).rows[0].body,p.body);
+  await handler(request('POST',{...p,highlights:'Different conclusion'}),res);assert.equal(res.code,409);
+  assert.equal((await db.query('SELECT highlights FROM public_intelligence_briefs')).rows[0].highlights,p.highlights);
 });
 test('private provider details and additional research payload fields are rejected',async()=>{
-  for(const change of [{body:'Coinalyze CVD and funding rate readings'},{raw_evidence:{private:true}},{body:'DEMONSTRATION — FICTIONAL DATA'}]){
+  for(const change of [{body:'Full private Telegram edition'},{highlights:'Coinalyze CVD and funding rate readings'},{raw_evidence:{private:true}},{highlights:'DEMONSTRATION — FICTIONAL DATA'}]){
     const res=response();await handler(request('POST',{...publication(),...change}),res);assert.equal(res.code,400);
   }assert.equal(calls.length,0);
 });
 test('stale, future and oversized publications are rejected',()=>{
   const now=new Date();for(const as_of of [new Date(now-21*60000).toISOString(),new Date(+now+60000).toISOString()])assert.throws(()=>validate({...publication(),as_of},now));
-  assert.throws(()=>validate({...publication(),body:'x'.repeat(16001)},now));
+  assert.throws(()=>validate({...publication(),highlights:'x'.repeat(1201)},now));
 });
 test('publication prunes old editions and retains only the current seven-day window',async()=>{
   await db.exec("INSERT INTO public_intelligence_briefs VALUES ((now() AT TIME ZONE 'Europe/London')::date-8,now(),'Old','Old','Old',repeat('a',64)),((now() AT TIME ZONE 'Europe/London')::date-6,now(),'Keep','Keep','Keep',repeat('b',64))");
@@ -55,7 +55,7 @@ test('publication prunes old editions and retains only the current seven-day win
   assert.equal((await db.query('SELECT count(*)::int AS n FROM public_intelligence_briefs')).rows[0].n,2);
 });
 test('the database independently enforces the brief size limit',async()=>{
-  await assert.rejects(db.query("INSERT INTO public_intelligence_briefs VALUES (current_date,now(),'Title','Preview',$1,repeat('a',64))",['x'.repeat(16001)]));
+  await assert.rejects(db.query("INSERT INTO public_intelligence_briefs VALUES (current_date,now(),'Title','Preview',$1,repeat('a',64))",['x'.repeat(1201)]));
 });
 test('an unconfigured site has a truthful empty state',async()=>{
   delete process.env.DATABASE_URL;const res=response();await handler({method:'GET',headers:{},query:{}},res);
