@@ -75,6 +75,52 @@ python -B -m intelligence.runner --fixture examples/demo-snapshot.json --at 2026
 
 Environment variables are read directly; `.env.example` is documentation and is not loaded automatically. A fixture is visibly fictional and cannot deliver. Nothing in these commands enables sends unless both explicit environment flags and delivery flags are set.
 
+## Optional automatic X posting — Buffer Free
+
+X automation is **off by default**. No new subscription, AI service, direct X developer credits, database, volume or separate worker is required. It runs inside the existing Railway process, whose normal hosting charges still apply. As checked on 3 November 2026, [Buffer Free](https://buffer.com/pricing) includes X publishing, up to three channels, ten queued posts per channel at once, and API access. Our one-summary-per-day integration uses at most two Buffer requests per edition (destination check and submission). Buffer retains its own post records; Telegram remains the full Intelligence archive. No local archive is added. If Free access or limits change, leave this feature disabled rather than upgrading automatically.
+
+The scheduled worker submits one short X post **only after Telegram confirms delivery** of a complete brief. It includes the edition's UK timestamp, BTC outlook implication, a research-only label and a direct link to that Telegram message. It does not invent news, price levels or trade results. The full news, DeFi watch and watchlist remain in Telegram. It uses fixed templates, so there is no language-model API bill. Independent news commentary and weekly reviews still need editorial work; they are not automated here.
+
+Setup after merging this update:
+
+1. Create an account at [Buffer](https://buffer.com) and use its **Free** plan. Do not purchase a subscription or X developer credits for this integration.
+2. In Buffer, add a channel, select **X / Twitter**, and personally sign in and authorize the CryptoEdge account. Check that it is the correct public profile. Keep the channel connected, unlocked and unpaused.
+3. Open **Buffer account settings → API**, then generate a personal API key. Keep it private. The account owner creates the key. [Authentication and setup](https://buffer.com/api).
+4. In Buffer's [API Explorer](https://developers.buffer.com/reference.html), run the read-only queries below. First find your organization ID; then list its channels. Copy the `id` of the channel whose `service` is `twitter` and whose `name` matches your CryptoEdge handle. These queries do not publish anything.
+
+```graphql
+query {
+  account { organizations { id name } }
+}
+```
+
+```graphql
+query {
+  channels(input: { organizationId: "YOUR_ORGANIZATION_ID" }) {
+    id name service
+  }
+}
+```
+
+5. In **Railway → robust-radiance → CryptoEdge Intelligence. → Variables**, add:
+
+| Variable | Value |
+| --- | --- |
+| `INTELLIGENCE_X_ENABLED` | `false` while setting up |
+| `INTELLIGENCE_X_HANDLE` | Your exact CryptoEdge X handle, with or without `@` |
+| `BUFFER_API_KEY` | Your private Buffer personal API key |
+| `BUFFER_X_CHANNEL_ID` | The verified Buffer channel ID from step 4 |
+
+6. Preview locally from `intelligence_worker/` with `python -B -m intelligence.runner --x-draft`. This collects fresh data and prints the short copy without contacting Buffer or posting. An incomplete assessment is held. A fictional preview is available with `--x-draft --fixture examples/demo-snapshot.json --at 2026-11-01T08:00:00Z`; it is visibly labelled fictional.
+7. Set `INTELLIGENCE_X_ENABLED=true` and deploy before the next 08:00 UK edition. Keep the existing start command **`python -m intelligence.runner --worker --deliver`** and one replica. Other Telegram flags and settings stay as already configured. This activates future scheduled X summaries; it does not backfill old editions. The one-off `--publish-now` command remains Telegram-only.
+8. After an edition, `"x_delivery":"accepted"` means Buffer accepted the submission, **not** proof X published it. Check Buffer's Sent/Failed views and the actual X profile. An uncertain result is not retried automatically. To stop new X submissions, set `INTELLIGENCE_X_ENABLED=false` and redeploy. Already accepted posts must be managed in Buffer.
+
+Telegram failures prevent X promotion of an unpublished edition. X failures do not resend or block Telegram. The same no-disk restart rule applies: starting at or after the daily time skips that day's scheduled edition. No durable exactly-once guarantee exists; check Buffer and X before any manual repost, and never run overlapping schedulers. This version has been tested offline with mocked Buffer responses; real account authorization and an actual post still need verification.
+
+For the first 30 days, use the daily summary consistently, add three original news/DeFi observations a week when verified, and review the week's views including invalidations. Keep research separate from entry signals and disclose sponsored content. Use Buffer/X's existing statistics and Telegram invite links to assess useful engagement and joins without adding an analytics database.
+
+API references: [first post and channel discovery](https://developers.buffer.com/guides/your-first-post.html), [current schema including shareNow](https://developers.buffer.com/reference.html), [Free queue limits](https://support.buffer.com/en-us/articles/how-many-posts-can-i-schedule-in-advance-Kmy2IEecqm).
+
 ## Optional data and editorial input
 
 Coinalyze is not required for the default baseline. To enable optional private order-flow collection, add `COINALYZE_API_KEY`, set `INTELLIGENCE_ORDER_FLOW_ENABLED=true` and supply `INTELLIGENCE_MARKET_MAPPING` as a JSON object with verified `spot` and `futures` provider ID lists for each of BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT and HYPEUSDT. Never guess IDs. An enabled but incomplete optional collection holds publication. These observations exist only in memory and do not alter the initial price-based outlook.
