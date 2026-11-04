@@ -111,9 +111,9 @@ class WorkerTests(unittest.TestCase):
         with patch('intelligence.runner.collect', return_value=snapshot()), patch('builtins.open', side_effect=AssertionError('File access')), patch('pathlib.Path.open', side_effect=AssertionError('File access')):
             text, status, _=prepare(config(), NOW)
         self.assertTrue(status['complete'])
-        self.assertIn('CRYPTOEDGE STATUS', text)
+        self.assertIn('TOP GAINERS & LOSERS', text)
         self.assertNotIn('GKC', text)
-        self.assertIn('Confirmed BTC entries', text)
+        self.assertNotIn('CRYPTOEDGE STATUS', text)
 
     def test_fixture_cli_cannot_send(self):
         with patch.object(sys, 'argv', ['runner','--fixture','fake.json','--deliver','--publish-now']), contextlib.redirect_stderr(io.StringIO()):

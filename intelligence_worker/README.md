@@ -2,7 +2,7 @@
 
 This folder belongs to the website repository, `hazakzy/cryptoedge-premium`. Deploy it as a separate Railway service. Keep Vercel serving the existing website from the repository root.
 
-The public offer is free daily Intelligence plus free BTC signals in `@cryptoedgelab`. Premium adds supported altcoin trade coverage. This worker publishes research only. The existing Auto trading bot remains responsible for actual BTC entry, stop, target and position updates; this worker neither polls private positions nor places orders. Its message section is **CRYPTOEDGE STATUS**.
+The public offer is free daily Intelligence plus free BTC signals in `@cryptoedgelab`. Premium adds supported altcoin trade coverage. This worker publishes research only. The existing Auto trading bot remains responsible for actual BTC entry, stop, target and position updates; this worker neither polls private positions nor places orders. The brief ends with **TOP GAINERS & LOSERS — 24H**, replacing the earlier CryptoEdge Status section.
 
 ## Storage and costs
 
@@ -19,9 +19,31 @@ Without durable receipts, the worker cannot guarantee exactly-once delivery acro
 - Official Federal Reserve monetary-policy and Ethereum feed discovery. Candidates are not automatically verified news or automatically republished.
 - Original news/event summaries supplied through `INTELLIGENCE_EDITORIAL_JSON`, with source URLs, review times and validity windows. Empty or expired coverage is disclosed honestly in the published brief. Feed discovery is limited; this is not a complete crypto or macro news service.
 - UK local scheduling and message timestamps without a timezone suffix.
+- Automatic selected US economic-release times from the official BLS and BEA iCalendar subscriptions, converted into UK local time. This covers selected inflation, employment, GDP, PCE and trade releases, not a global economic calendar or the full Fed/BoE/ECB schedule.
+- Top three positive and top three negative rolling-24h changes among the covered venue's USDT spot pairs with at least 10m USDT in 24h turnover. Stablecoin identifiers and 2L/2S/3L/3S/5L/5S suffixes are filtered. This is not an all-exchange or market-cap ranking; filters are finite, not a guarantee every synthetic or stable asset is excluded.
 - Public copy excludes raw positioning, research provider names, credentials and strategy parameters.
 
 The outlook is an initial price-structure baseline. Order flow is optional and off by default because it does not yet change that baseline. There is no smart-wallet tracking, exchange-netflow analysis, verified autonomous news interpretation, or performance claim. Do not advertise these as completed features.
+
+## Calendar, catalysts and daily movers update
+
+Merge and redeploy the existing Intelligence service; no new environment variables, API key, dependency, volume, database or separate service are needed for these three sections. Normal hosting charges still apply. This update is independent of the optional Buffer/X pull request and can be merged before or after it.
+
+**Economic calendar:** fetch [BLS](https://www.bls.gov/help/hlpiCAL.htm) and [BEA](https://www.bea.gov/news/schedule/icalendar) subscriptions once per collection. Read explicit timed events, handle New York and UK daylight-saving transitions, unfold calendar lines, ignore cancelled/latest-revision and unsupported recurring events, and reject date-only/floating events rather than guessing a time. Include selected releases today or in the next 24 hours. A past scheduled time is labelled “result unverified”; it does not prove that a delayed release occurred. Stale, unavailable and partial calendar coverage are disclosed. Consensus and actual figures are not included in these public schedules. Reviewed editorial events can supply them.
+
+**Top catalysts:** up to three fresh, reviewed original news summaries under `TOP CATALYSTS — VERIFIED`. Each record accepts `subscriber_copy` (maximum 220 characters), optional `impact_copy` (maximum 120) explaining why it matters, and optional `affected_assets` (up to five uppercase tickers). Provide both of the optional fields when relevant. Discovery-feed headlines remain unverified candidates and are not automatically republished. Without reviewed input, the brief explicitly says no verified material catalyst is included. This update does not create autonomous factual verification or an AI subscription.
+
+**Reviewed calendar details:** existing `events` records accept optional strings `previous`, `forecast` and `actual` (maximum 30 characters each, with units). Event `subscriber_copy` is capped at 140 characters. Use offset-aware `event_at`, current verification and validity windows as before. Events may be from earlier today in UK time or in the next 24 hours. An `actual` is accepted only after the scheduled time and with a review timestamp at or after that time. Results and forecasts still require actual editorial verification; validation checks shape and freshness, not factual truth. Reviewed calendar entries are prioritised over automatic schedule entries, with at most three displayed. Extra items can be omitted whole to fit Telegram length limits.
+
+**Movers:** one public spot-ticker request; reject responses older than five minutes, duplicate symbols and invalid numbers. Show only genuine positive/negative performers; if fewer than three qualify on a side, disclose that rather than filling it with the opposite sign. If ranking data is missing, stale or invalid, publish an unavailable notice. Calendar/mover failures are supplementary and do not suppress an otherwise complete market brief. No raw research provider names are added to subscriber copy. The [ticker schema](https://bybit-exchange.github.io/docs/v5/market/tickers) defines percentage change as a ratio; convert it to percent once.
+
+Preview the fictional example from `intelligence_worker/`:
+
+```text
+python -B -m intelligence.runner --fixture examples/demo-snapshot.json --at 2026-11-01T08:00:00Z
+```
+
+To include the fictional catalyst and editorial event too, set `INTELLIGENCE_EDITORIAL_JSON` to the contents of `examples/demo-editorial.json` only in your local preview environment. Never deploy the fictional records as live news. The fixture visibly labels the whole edition fictional and cannot send. Official endpoint availability still needs checking in the deployed region; offline tests do not establish live availability.
 
 ## Railway — exact setup
 

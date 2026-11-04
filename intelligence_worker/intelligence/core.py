@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
+from .briefing import CALENDARS, calendar_events, spot_movers
 
 UTC = timezone.utc
 UK = ZoneInfo('Europe/London')
@@ -204,6 +205,18 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False):
         snapshot['defi_source'] = 'https://api.llama.fi/protocols'
     except Exception as exc:
         snapshot['failures']['defi'] = type(exc).__name__
+    # Supplementary sections fail independently: never invent an empty/full calendar or ranking.
+    snapshot['calendar'] = {'events': [], 'sources_ok': [], 'unavailable': [], 'checked_at': now.isoformat()}
+    for name, url in CALENDARS.items():
+        try:
+            snapshot['calendar']['events'] += calendar_events(fetch(url), name, now)
+            snapshot['calendar']['sources_ok'].append(name)
+        except Exception:
+            snapshot['calendar']['unavailable'].append(name)
+    try:
+        snapshot['movers'] = spot_movers(get_json('https://api.bybit.com/v5/market/tickers?category=spot'), now)
+    except Exception:
+        snapshot['movers'] = {'unavailable': True}
     seen = set()
     for url in feeds:
         try:
@@ -240,18 +253,85 @@ def editorial_items(editorial, kind, now):
                 raise ValueError('Outside validity window')
             if kind == 'events':
                 event_at = instant(item['event_at'])
-                if not now <= event_at <= now+timedelta(hours=24):
+                start = now.astimezone(UK).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(UTC)
+                if not start <= event_at <= now+timedelta(hours=24):
                     raise ValueError('Outside event horizon')
             else:
                 published = instant(item['published_at'])
                 if published > now or published > verified:
                     raise ValueError('Future publication or review predates publication')
-            copy = safe_copy(item['subscriber_copy'])
-            prefix = instant(item['event_at']).astimezone(UK).strftime('%d %b %H:%M') + ' — ' if kind == 'events' else ''
+            copy = safe_copy(item['subscriber_copy'], 220 if kind == 'news' else 140)
+            if kind == 'news':
+                if item.get('impact_copy'):
+                    copy += ' Why it matters: '+safe_copy(item['impact_copy'], 120)
+                if item.get('affected_assets'):
+                    assets = item['affected_assets']
+                    if not isinstance(assets, list) or len(assets) > 5 or not all(isinstance(a, str) and re.fullmatch(r'[A-Z0-9]{2,12}', a) for a in assets):
+                        raise ValueError('Invalid affected assets')
+                    copy += ' Watch: '+', '.join(assets)+'.'
+            else:
+                for field, label in [('previous', 'Previous'), ('forecast', 'Forecast'), ('actual', 'Actual')]:
+                    if item.get(field) is not None:
+                        if field == 'actual' and (event_at > now or verified < event_at):
+                            raise ValueError('Unreleased or unverified actual')
+                        copy += ' '+label+': '+safe_copy(item[field], 30)+'.'
+                copy += (' Released; result verified.' if item.get('actual') else
+                         ' Scheduled; result pending.' if event_at >= now else
+                         ' Scheduled time passed; result unverified.')
+            prefix = event_at.astimezone(UK).strftime('%d %b %H:%M') + ' — ' if kind == 'events' else ''
             accepted.append(prefix+copy)
         except (ValueError, KeyError, TypeError):
             rejected.append(item.get('id', 'missing-id'))
     return accepted[:3], rejected
+
+
+def calendar_lines(snapshot, now):
+    calendar = snapshot.get('calendar', {})
+    try:
+        if not timedelta(0) <= now-instant(calendar['checked_at']) <= timedelta(minutes=20):
+            raise ValueError('Stale calendar')
+        items = sorted(calendar.get('events', []), key=lambda item: item['event_at'])
+        result = []
+        seen = set()
+        for item in items:
+            when = instant(item['event_at'])
+            if not (when.astimezone(UK).date() == now.astimezone(UK).date() or now <= when <= now+timedelta(hours=24)):
+                continue
+            name = safe_copy(item['name'], 50)
+            identity = (name, when.isoformat())
+            if identity in seen:
+                continue
+            seen.add(identity)
+            status = 'Scheduled; result pending.' if when >= now else 'Scheduled time passed; result unverified.'
+            result.append(when.astimezone(UK).strftime('%d %b %H:%M')+' — '+name+'. '+status+' '+safe_copy(item['relevance'], 100))
+        return result[:4], bool(calendar.get('unavailable')) or len(calendar.get('sources_ok', [])) != len(CALENDARS)
+    except (KeyError, TypeError, ValueError):
+        return [], True
+
+
+def mover_lines(snapshot, now):
+    try:
+        movers = snapshot['movers']
+        if not -timedelta(seconds=60) <= now-instant(movers['as_of']) <= timedelta(minutes=5):
+            raise ValueError('Stale movers')
+        result, seen = [], set()
+        for key, heading, positive in [('gainers', 'Top 3 gainers', True), ('losers', 'Top 3 losers', False)]:
+            rows = movers[key]
+            if not isinstance(rows, list) or len(rows) > 3:
+                raise ValueError('Invalid ranking')
+            entries = []
+            for row in rows:
+                symbol, change = row['symbol'], number(row['change_pct'])
+                if not re.fullmatch(r'[A-Z0-9]{2,20}', symbol) or symbol in seen or (change > 0) != positive or change == 0:
+                    raise ValueError('Invalid mover')
+                seen.add(symbol)
+                entries.append(f'{symbol} {change:+.2f}%')
+            result.append(heading+': '+(' | '.join(entries) if entries else 'No qualifying '+key+'.'))
+            if len(rows) < 3:
+                result.append('Fewer than three qualifying '+key+' in this snapshot.')
+        return result
+    except (KeyError, TypeError, ValueError):
+        return ['Current gainers and losers unavailable; no ranking published.']
 
 
 def render(snapshot, editorial, now, edition='daily'):
@@ -273,12 +353,17 @@ def render(snapshot, editorial, now, edition='daily'):
                    'mixed': 'Shorter-term movement and the wider structure disagree. Avoid treating direction as settled.',
                    'flat': 'There is no clear directional preference.',
                    'unavailable': 'A reliable current directional assessment is unavailable.'}[stance]
-    lines += ['MARKET OUTLOOK: '+outlook, explanation, '', 'FA & NEWS']
+    lines += ['MARKET OUTLOOK: '+outlook, explanation, '', 'TOP CATALYSTS — VERIFIED']
     news, rejected_news = editorial_items(editorial, 'news', now)
     lines += ['• '+x for x in news] or ['No verified material catalyst included in this edition.']
-    lines += ['', 'UPCOMING EVENTS']
+    lines += ['', 'ECONOMIC CALENDAR — UK TIMES']
     events, rejected_events = editorial_items(editorial, 'events', now)
-    lines += ['• '+x for x in events] or ['No verified scheduled event included. Calendar coverage is incomplete.']
+    official_events, calendar_unavailable = calendar_lines(snapshot, now)
+    calendar_display = (events+official_events)[:3]
+    lines += ['• '+x for x in calendar_display] or ['No scheduled release highlighted from available coverage.']
+    lines += [('Some calendar inputs unavailable. ' if calendar_unavailable else '')+
+              'Selected US releases + reviewed events. Calendar coverage is incomplete.']
+    lines += ['Automatic calendar supplies scheduled times, not consensus forecasts or results.']
     lines += ['', 'DEFI WATCH']
     defi_lines = []
     for row in snapshot.get('defi', []):
@@ -300,10 +385,21 @@ def render(snapshot, editorial, now, edition='daily'):
         lines.append(symbol.removesuffix('USDT')+': '+(watch[view['stance']] if view else 'Current assessment unavailable.'))
     lines += ['', 'WHAT CHANGES THE VIEW',
               'A sustained break of established support or recovery through resistance requires reassessment.',
-              '', 'CRYPTOEDGE STATUS',
-              'Research watch only. Confirmed BTC entries, stops, targets and position updates are posted separately in this public channel. Premium adds altcoin trade coverage.']
+              '', 'TOP GAINERS & LOSERS — 24H',
+              'Liquid USDT spot pairs in the covered market; minimum 10m USDT turnover. Stable and leveraged-token filters applied.']
+    lines += mover_lines(snapshot, now)
+    lines += ['Research watch only; movers are not entry signals.']
     if snapshot.get('failures'):
         lines += ['', 'Coverage is incomplete; this assessment is limited.']
+    # Drop whole lower-priority extra items rather than truncating a fact or withholding the edition.
+    omitted = False
+    for extra in list(reversed(calendar_display[1:]))+list(reversed(news[1:])):
+        if len('\n'.join(lines).encode('utf-16-le'))//2 <= 3830:
+            break
+        lines.remove('• '+extra)
+        omitted = True
+    if omitted:
+        lines += ['Additional items omitted for brevity.']
     text = '\n'.join(lines)
     if len(text.encode('utf-16-le'))//2 > 3900 or PRIVATE_TERMS.search(text):
         raise ValueError('Subscriber message exceeds length or disclosure policy')
