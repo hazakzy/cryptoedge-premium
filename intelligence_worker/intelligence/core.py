@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
 from .briefing import CALENDARS, calendar_events, spot_movers
+from .formatting import arrange
 
 UTC = timezone.utc
 UK = ZoneInfo('Europe/London')
@@ -362,8 +363,8 @@ def render(snapshot, editorial, now, edition='daily'):
     calendar_display = (events+official_events)[:3]
     lines += ['• '+x for x in calendar_display] or ['No scheduled release highlighted from available coverage.']
     lines += [('Some calendar inputs unavailable. ' if calendar_unavailable else '')+
-              'Selected US releases + reviewed events. Calendar coverage is incomplete.']
-    lines += ['Automatic calendar supplies scheduled times, not consensus forecasts or results.']
+              'Selected US releases. Calendar coverage is incomplete.']
+    lines += ['Forecasts and results appear only when verified.']
     lines += ['', 'DEFI WATCH']
     defi_lines = []
     for row in snapshot.get('defi', []):
@@ -386,7 +387,7 @@ def render(snapshot, editorial, now, edition='daily'):
     lines += ['', 'WHAT CHANGES THE VIEW',
               'A sustained break of established support or recovery through resistance requires reassessment.',
               '', 'TOP GAINERS & LOSERS — 24H',
-              'Liquid USDT spot pairs in the covered market; minimum 10m USDT turnover. Stable and leveraged-token filters applied.']
+              'Liquid USDT spot pairs • Minimum 10m USDT turnover • Filtered market coverage']
     lines += mover_lines(snapshot, now)
     lines += ['Research watch only; movers are not entry signals.']
     if snapshot.get('failures'):
@@ -394,13 +395,13 @@ def render(snapshot, editorial, now, edition='daily'):
     # Drop whole lower-priority extra items rather than truncating a fact or withholding the edition.
     omitted = False
     for extra in list(reversed(calendar_display[1:]))+list(reversed(news[1:])):
-        if len('\n'.join(lines).encode('utf-16-le'))//2 <= 3830:
+        if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 <= 3830:
             break
         lines.remove('• '+extra)
         omitted = True
     if omitted:
         lines += ['Additional items omitted for brevity.']
-    text = '\n'.join(lines)
+    text = arrange('\n'.join(lines))
     if len(text.encode('utf-16-le'))//2 > 3900 or PRIVATE_TERMS.search(text):
         raise ValueError('Subscriber message exceeds length or disclosure policy')
     return text, {'outlook': outlook, 'stance': stance,

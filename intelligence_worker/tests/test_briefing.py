@@ -141,8 +141,8 @@ class CatalystAndIntegrationTests(unittest.TestCase):
     def test_updated_brief_replaces_status_and_stays_bounded(self):
         text, _ = render(snapshot(), {'news': [editorial()], 'events': [editorial('events')]}, NOW)
         self.assertIn('ECONOMIC CALENDAR', text)
-        self.assertIn('Top 3 gainers: AAA +20.00%', text)
-        self.assertIn('Top 3 losers: EEE -20.00%', text)
+        self.assertIn('Top 3 gainers:\n1. AAA +20.00%', text)
+        self.assertIn('Top 3 losers:\n1. EEE -20.00%', text)
         self.assertNotIn('CRYPTOEDGE STATUS', text)
         self.assertNotIn('bybit', text.lower())
         self.assertLessEqual(len(text.encode('utf-16-le'))//2, 3900)
