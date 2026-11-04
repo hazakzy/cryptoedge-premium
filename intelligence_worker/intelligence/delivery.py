@@ -3,6 +3,7 @@ import json
 import urllib.error
 import urllib.request
 from datetime import timedelta
+from .formatting import telegram_html
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -11,7 +12,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def telegram(token, channel, text):
-    body = json.dumps({'chat_id': channel, 'text': text,
+    body = json.dumps({'chat_id': channel, 'text': telegram_html(text), 'parse_mode': 'HTML',
         'link_preview_options': {'is_disabled': True}}).encode()
     request = urllib.request.Request('https://api.telegram.org/bot'+token+'/sendMessage',
         data=body, headers={'Content-Type': 'application/json'})
