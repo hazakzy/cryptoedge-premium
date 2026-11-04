@@ -9,7 +9,9 @@
       "valid_from": "2026-11-01T07:30:00Z",
       "valid_until": "2026-11-01T20:00:00Z",
       "id": "demo-news",
-      "subscriber_copy": "Demonstration: a protocol upgrade is planned. A sustained market response is still required."
+      "subscriber_copy": "Demonstration: a protocol upgrade is planned.",
+      "impact_copy": "Usage could change; token value capture still needs confirmation.",
+      "affected_assets": ["ETH"]
     }
   ],
   "events": [
@@ -23,7 +25,9 @@
       "valid_until": "2026-11-01T20:00:00Z",
       "id": "demo-event",
       "event_at": "2026-11-01T13:30:00Z",
-      "subscriber_copy": "Fictional macro release for layout demonstration only."
+      "subscriber_copy": "Fictional macro release for layout demonstration only.",
+      "previous": "2.4% (fictional)",
+      "forecast": "2.5% (fictional)"
     }
   ]
 }
