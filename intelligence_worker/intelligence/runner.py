@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .core import UTC, UK, SYMBOLS, collect, instant, render
 from .delivery import Delivery
+from .social import XDelivery, x_summary
 
 ROOT = Path(__file__).resolve().parents[1]
 FEEDS = ['https://www.federalreserve.gov/feeds/press_monetary.xml',
@@ -40,7 +41,13 @@ def settings(env=None):
     flow = flag(env, 'INTELLIGENCE_ORDER_FLOW_ENABLED')
     if flow and (not env.get('COINALYZE_API_KEY') or set(mapping) != set(SYMBOLS)):
         raise ValueError('Enabled order flow requires credentials and complete mapping')
+    x_enabled = flag(env, 'INTELLIGENCE_X_ENABLED')
+    x_handle = env.get('INTELLIGENCE_X_HANDLE', '')
+    buffer_token = env.get('BUFFER_API_KEY', '')
+    buffer_channel = env.get('BUFFER_X_CHANNEL_ID', '')
     return {'clock': clock, 'channel': channel, 'mapping': mapping, 'editorial': editorial,
+        'x_enabled': x_enabled, 'x_handle': x_handle, 'buffer_token': buffer_token,
+        'buffer_channel': buffer_channel,
         'order_flow': flow, 'enabled': flag(env, 'INTELLIGENCE_PUBLICATION_ENABLED'),
         'rights': flag(env, 'INTELLIGENCE_DATA_RIGHTS_CONFIRMED'),
         'token': env.get('TELEGRAM_BOT_TOKEN', '')}
@@ -76,12 +83,13 @@ def publication_ready(config):
 class Worker:
     def __init__(self, config, started, sending=False):
         self.config, self.sending, self.delivery = config, sending, None
+        self.x_delivery = None
         if sending:
             publication_ready(config)
         # No disk receipts: never resume today's scheduled send after its time on restart.
         self.day = started.astimezone(UK).date() if started >= target(started, config['clock']) else None
 
-    def tick(self, now, producer=None, sender=None):
+    def tick(self, now, producer=None, sender=None, x_sender=None):
         day = now.astimezone(UK).date()
         event = None
         if day != self.day and schedule_due(now, self.config['clock']):
@@ -91,6 +99,7 @@ class Worker:
                 self.day = day
             elif status['complete']:
                 self.delivery = Delivery(text, self.config['channel'], now, expires)
+                self.x_delivery = XDelivery(text, expires) if self.config['x_enabled'] else None
                 self.day = day
                 event['mode'] = 'publication'
             else:
@@ -99,6 +108,12 @@ class Worker:
             state = self.delivery.dispatch(self.config['token'], now, sender)
             if state:
                 event = {**(event or {}), 'delivery': state}
+            if self.x_delivery and self.delivery.state == 'sent':
+                state = self.x_delivery.dispatch(self.config, now, self.delivery.message_id, x_sender)
+                if state:
+                    event = {**(event or {}), 'x_delivery': state}
+            elif self.x_delivery and self.delivery.state in ('failed', 'uncertain', 'expired'):
+                self.x_delivery = None
         return event
 
 
@@ -108,9 +123,12 @@ def main():
     parser.add_argument('--deliver', action='store_true', help='Permit Telegram sends; requires private environment settings')
     parser.add_argument('--publish-now', action='store_true', help='Explicit one-off send; check Telegram first to avoid duplicates')
     parser.add_argument('--check', action='store_true', help='Collect and report coverage without printing the brief')
+    parser.add_argument('--x-draft', action='store_true', help='Preview an X summary; never sends')
     parser.add_argument('--fixture', help='Preview a fictional snapshot; cannot send')
     parser.add_argument('--at', help='Offset-aware fixture time only')
     args = parser.parse_args()
+    if args.x_draft and (args.worker or args.deliver or args.check or args.publish_now):
+        parser.error('--x-draft is preview only')
     if args.at and not args.fixture:
         parser.error('--at requires --fixture')
     if args.deliver and (args.fixture or args.check):
@@ -126,6 +144,7 @@ def main():
             worker = Worker(config, now, args.deliver)
             print(json.dumps({'service': 'cryptoedge-intelligence', 'storage': 'memory_only',
                 'mode': 'publication' if args.deliver else 'preview', 'daily_time': config['clock'],
+                'x_enabled': config['x_enabled'],
                 'today_suppressed_after_start': worker.day is not None}), flush=True)
             while True:
                 try:
@@ -144,6 +163,10 @@ def main():
                     raise ValueError('Incomplete collection; publication held')
                 delivery = Delivery(text, config['channel'], now, expires)
                 status['delivery'] = delivery.dispatch(config['token'], datetime.now(UTC))
+            elif args.x_draft:
+                if not status['complete'] and not args.fixture:
+                    raise ValueError('Incomplete collection; X summary held')
+                print(x_summary(text, config['channel']))
             elif not args.check:
                 print(text)
             print(json.dumps(status), flush=True)
