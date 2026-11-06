@@ -9,14 +9,17 @@
     var host = section.querySelector('[data-calendar-widget]');
     var widget = host.querySelector('.tradingview-widget-container__widget');
     var status = section.querySelector('[data-calendar-status]');
+    var frameBox = section.querySelector('.calendar-frame');
     if (host._calendarCleanup) host._calendarCleanup();
     widget.replaceChildren();
     host.querySelectorAll('script').forEach(function (script) { script.remove(); });
     status.hidden = false;
+    frameBox.classList.remove('is-unavailable');
     status.textContent = 'Loading economic calendar…';
     var theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
     var timer = window.setTimeout(function () {
       status.textContent = 'Calendar taking longer to load? Open it on TradingView below.';
+      frameBox.classList.add('is-unavailable');
     }, 15000);
     var observer = new MutationObserver(function () {
       var frame = widget.querySelector('iframe') || host.querySelector('iframe');
@@ -25,6 +28,7 @@
       frame.addEventListener('load', function () {
         window.clearTimeout(timer);
         status.hidden = true;
+        frameBox.classList.remove('is-unavailable');
       }, { once: true });
       observer.disconnect();
     });
@@ -45,6 +49,7 @@
     script.onerror = function () {
       window.clearTimeout(timer);
       status.hidden = false;
+      frameBox.classList.add('is-unavailable');
       status.textContent = 'Calendar unavailable here. Open it on TradingView below.';
     };
     host.appendChild(script);

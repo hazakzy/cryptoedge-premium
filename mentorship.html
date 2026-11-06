@@ -18,9 +18,11 @@
 <script>(function(){try{var t=localStorage.getItem('ce-theme');if(t!=='light'&&t!=='dark')t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.setAttribute('data-theme',t);if(t==='light'){document.querySelector('meta[name="theme-color"]').setAttribute('content','#f5f7f6');}}catch(e){}})();</script>
 <link rel="stylesheet" href="/assets/styles.css">
 <link rel="stylesheet" href="/assets/site-refresh.css">
+<link rel="stylesheet" href="/assets/site-priority.css">
 </head>
 <body class="mentorship-page">
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="topbar">
   <div class="topbar-inner has-public-nav">
     <a class="brand" href="/"><span class="logo">CE</span>CRYPTOEDGE</a>
@@ -31,7 +33,7 @@
   </div>
 </header>
 
-<main class="page">
+<main class="page" id="main">
   <section class="hero mentorship-hero"><span class="eyebrow">CRYPTOEDGE MENTORSHIP</span><h1>Your interests.<br><span class="accent-word">Your learning path.</span></h1><p class="lead">Build your understanding through focused lessons in trading, research and DeFi. Take one course or explore the complete programme.</p><div class="hero-actions"><a class="btn btn-primary" href="#mentorship">Browse courses</a><a class="btn btn-secondary" href="https://wa.me/2348028071868?text=Hello%20CryptoEdge%2C%20please%20help%20me%20choose%20a%20mentorship%20course." target="_blank" rel="noopener noreferrer">Help me choose</a></div></section>
   <div class="value-strip"><span><b>01</b> Pick your subject</span><span><b>02</b> Choose private or group</span><span><b>03</b> Agree a schedule before payment</span></div>
   <section class="mentorship mentorship-catalogue" id="mentorship" aria-labelledby="mentorship-title">
@@ -82,5 +84,6 @@
 <script src="/assets/polish.js"></script>
 </body>
 </html>
+
 
 

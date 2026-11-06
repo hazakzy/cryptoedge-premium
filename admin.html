@@ -10,9 +10,11 @@
 <script>(function(){try{var t=localStorage.getItem('ce-theme');if(t!=='light'&&t!=='dark')t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.setAttribute('data-theme',t);if(t==='light'){document.querySelector('meta[name="theme-color"]').setAttribute('content','#f5f7f6');}}catch(e){}})();</script>
 <link rel="stylesheet" href="/assets/styles.css">
 <link rel="stylesheet" href="/assets/site-refresh.css">
+<link rel="stylesheet" href="/assets/site-priority.css">
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="/"><span class="logo">CE</span>CRYPTOEDGE</a>
@@ -23,7 +25,7 @@
   </div>
 </header>
 
-<main class="page admin-page">
+<main class="page admin-page" id="main">
   <div class="admin-head">
     <div><span class="eyebrow">Membership operations</span><h1>Payment review</h1><p class="admin-description">Review submissions, verify payments and manage membership access.</p></div>
     <button class="abtn" id="logout" type="button">Logout / clear token</button>
@@ -446,5 +448,6 @@
 <script src="/assets/polish.js"></script>
 </body>
 </html>
+
 
 
