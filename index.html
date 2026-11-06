@@ -18,6 +18,7 @@
 <script>(function(){try{var t=localStorage.getItem('ce-theme');if(t!=='light'&&t!=='dark')t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.setAttribute('data-theme',t);if(t==='light'){document.querySelector('meta[name="theme-color"]').setAttribute('content','#f5f7f6');}}catch(e){}})();</script>
 <link rel="stylesheet" href="/assets/styles.css">
 <link rel="stylesheet" href="/assets/site-refresh.css">
+<link rel="stylesheet" href="/assets/calendar.css">
 </head>
 <body class="landing-page">
 
@@ -50,6 +51,25 @@
   <div class="value-strip" aria-label="Services"><span><b>01</b> Free market Intelligence</span><span><b>02</b> Managed trade alerts</span><span><b>03</b> Four focused courses</span></div>
 
   <section class="home-intelligence" aria-labelledby="intelligence-intro-title"><div class="section-heading"><div><span class="promo-label">FREE INTELLIGENCE</span><h2 id="intelligence-intro-title">A clearer view of the market.</h2></div><a class="quiet-link" href="/intelligence.html">Explore Intelligence ↗</a></div><p>Daily market context, important news, DeFi research and free BTC trade signals. Read the full editions and position updates in one public Telegram channel.</p><a class="btn btn-primary" href="https://t.me/cryptoedgelab" target="_blank" rel="noopener noreferrer">Join the free channel ↗</a><p class="free-research-note">No subscription needed. The example on our Intelligence page shows the format; published research lives in Telegram.</p></section>
+
+  <section class="economic-calendar calendar-home" id="economic-calendar" aria-labelledby="home-calendar-title" data-economic-calendar data-calendar-height="520">
+    <div class="calendar-copy">
+      <span class="eyebrow">THE MACRO PICTURE</span>
+      <h2 id="home-calendar-title">Know what is<br>on the calendar.</h2>
+      <p>Inflation releases, jobs reports and rate decisions can change the trading day. Check the important events before making your plan.</p>
+      <ul class="calendar-tags" aria-label="Default calendar coverage"><li>High importance</li><li>US · UK · Euro area</li><li>Japan · China</li></ul>
+      <a class="quiet-link" href="/intelligence.html#economic-calendar">Explore the larger calendar <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="calendar-frame">
+      <div class="tradingview-widget-container" data-calendar-widget>
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/economic-calendar/" rel="noopener nofollow" target="_blank"><span class="blue-text">Economic Calendar</span></a><span class="trademark"> by TradingView</span></div>
+      </div>
+      <p class="calendar-status" data-calendar-status role="status">Loading economic calendar…</p>
+      <p class="calendar-note">Times follow the calendar’s displayed time zone. <a href="https://www.tradingview.com/economic-calendar/" target="_blank" rel="noopener noreferrer">Open on TradingView ↗</a></p>
+      <noscript><p class="calendar-note">Enable JavaScript to see the calendar here, or open the link above.</p></noscript>
+    </div>
+  </section>
 
   <p class="section-title">PREMIUM ACCESS · THREE SIMPLE STEPS</p>
   <ol class="how">
@@ -121,6 +141,7 @@
 
 <script src="/assets/theme.js"></script>
 <script src="/assets/polish.js"></script>
+<script src="/assets/calendar.js" defer></script>
 </body>
 </html>
 
