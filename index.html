@@ -19,9 +19,11 @@
 <link rel="stylesheet" href="/assets/styles.css">
 <link rel="stylesheet" href="/assets/site-refresh.css">
 <link rel="stylesheet" href="/assets/calendar.css">
+<link rel="stylesheet" href="/assets/site-priority.css">
 </head>
 <body class="landing-page">
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="topbar">
   <div class="topbar-inner has-public-nav">
     <a class="brand" href="/"><span class="logo">CE</span>CRYPTOEDGE</a>
@@ -32,25 +34,42 @@
   </div>
 </header>
 
-<main class="page">
-  <section class="hero hero-editorial">
-    <div class="hero-copy"><span class="eyebrow">RESEARCH. SIGNALS. SKILLS.</span>
-    <h1>Understand the market.<br><span class="accent-word">Trade with a plan.</span></h1>
-    <p class="lead">Free daily Intelligence and BTC signals in our public Telegram channel. Broader trade coverage with Premium. Focused mentorship to build your skills.</p>
-    <div class="hero-actions"><a class="btn btn-primary" href="/intelligence.html">Explore free Intelligence <span aria-hidden="true">↗</span></a><a class="btn btn-secondary" href="/premium.html">Explore Premium</a></div>
-    <p class="cta-note"><span class="intro-dot" aria-hidden="true"></span> Premium introductory offer <strong>$10 / 30 days</strong></p>
-    <a class="quiet-link hero-free" href="https://t.me/cryptoedgelab" target="_blank" rel="noopener noreferrer">Start with our free BTC channel →</a></div>
-    <aside class="signal-preview" aria-labelledby="preview-title">
-      <div class="preview-top"><span class="preview-brand">CE <span>THE PREMIUM EXPERIENCE</span></span><span class="preview-tag">Example</span></div>
-      <div class="preview-heading"><div><span class="preview-caption">A TRADE PLAN, AT A GLANCE</span><h2 id="preview-title">BTC / USDT</h2></div><span class="direction">BUY ↗</span></div>
-      <div class="example-chart" aria-hidden="true"><svg viewBox="0 0 380 110" fill="none"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#43dca2" stop-opacity=".2"/><stop offset="1" stop-color="#43dca2" stop-opacity="0"/></linearGradient></defs><path d="M0 28H380M0 60H380M0 92H380" stroke="currentColor" opacity=".12"/><path d="M0 92L25 83L47 87L72 65L100 70L125 52L152 60L176 40L200 50L225 30L247 39L272 22L299 29L325 12L351 21L380 5V110H0Z" fill="url(#chart-fill)"/><path d="M0 92L25 83L47 87L72 65L100 70L125 52L152 60L176 40L200 50L225 30L247 39L272 22L299 29L325 12L351 21L380 5" stroke="#43dca2" stroke-width="2.5"/></svg></div>
-      <dl class="preview-levels"><div><dt>Entry</dt><dd>$100,000</dd></div><div><dt>Stop-loss</dt><dd>$96,000</dd></div><div><dt>TP1 · close 20%</dt><dd>$103,000</dd></div><div><dt>TP2 · close 20%</dt><dd>$105,000</dd></div></dl>
-      <div class="preview-foot"><span class="preview-status" aria-hidden="true">↗</span><p>Entry, protection &amp; position updates.<small>Illustrative example. Not a live signal or price chart.</small></p></div>
+<main class="page" id="main">
+  <section class="hero hero-editorial priority-hero" aria-labelledby="home-title">
+    <div class="hero-copy">
+      <span class="eyebrow">INTELLIGENCE. TRADE PLANS. EDUCATION.</span>
+      <h1 id="home-title">Research the market.<br><span class="accent-word">Build your trading edge.</span></h1>
+      <p class="lead">Daily market Intelligence. Defined trade plans. Focused courses. Explore the tools and choose the next step that fits you.</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#explore">Find your starting point <span aria-hidden="true">↓</span></a><a class="btn btn-secondary" href="/intelligence.html">See free Intelligence</a></div>
+      <p class="hero-note">Free Intelligence &amp; BTC signals. Optional Premium and mentorship.</p>
+    </div>
+    <aside class="brief-preview" aria-labelledby="brief-preview-title">
+      <div class="brief-preview-top"><span>INSIDE THE DAILY BRIEF</span><span class="preview-tag">Format preview</span></div>
+      <h2 id="brief-preview-title">A little more context.<br>A clearer starting point.</h2>
+      <dl class="brief-preview-rows"><div><dt><span>01</span>Market outlook</dt><dd>The working view and what would change it.</dd></div><div><dt><span>02</span>Events &amp; catalysts</dt><dd>The releases and developments worth watching.</dd></div><div><dt><span>03</span>DeFi &amp; market movers</dt><dd>Activity, liquidity and the day's standouts.</dd></div></dl>
+      <a class="quiet-link" href="/intelligence.html#sample">Explore the briefing format <span aria-hidden="true">↗</span></a>
+      <p class="preview-caption-note">An overview of the format, not a live market assessment.</p>
     </aside>
   </section>
-  <div class="value-strip" aria-label="Services"><span><b>01</b> Free market Intelligence</span><span><b>02</b> Managed trade alerts</span><span><b>03</b> Four focused courses</span></div>
+  <div class="value-strip" aria-label="At a glance"><span><b>01</b> Free daily Intelligence</span><span><b>02</b> Premium: $10 / 30 days</span><span><b>03</b> Four focused courses</span></div>
 
-  <section class="home-intelligence" aria-labelledby="intelligence-intro-title"><div class="section-heading"><div><span class="promo-label">FREE INTELLIGENCE</span><h2 id="intelligence-intro-title">A clearer view of the market.</h2></div><a class="quiet-link" href="/intelligence.html">Explore Intelligence ↗</a></div><p>Daily market context, important news, DeFi research and free BTC trade signals. Read the full editions and position updates in one public Telegram channel.</p><a class="btn btn-primary" href="https://t.me/cryptoedgelab" target="_blank" rel="noopener noreferrer">Join the free channel ↗</a><p class="free-research-note">No subscription needed. The example on our Intelligence page shows the format; published research lives in Telegram.</p></section>
+  <section class="explore-section" id="explore" aria-labelledby="explore-title">
+    <div class="section-heading"><div><span class="eyebrow">CHOOSE YOUR NEXT STEP</span><h2 id="explore-title">Start where it helps you most.</h2></div><p>Explore the details before you decide.</p></div>
+    <div class="explore-grid">
+      <article class="explore-card explore-card-featured"><div class="explore-card-top"><span>01 / INTELLIGENCE</span><span class="badge">Free</span></div><h3>Make sense of<br>the market.</h3><p>A daily outlook, economic events, catalysts and DeFi context, with free BTC signals published separately.</p><ul><li>See the briefing format</li><li>Explore the economic calendar</li><li>Learn how research and signals differ</li></ul><a class="btn btn-primary" href="/intelligence.html">Explore Intelligence <span aria-hidden="true">↗</span></a></article>
+      <article class="explore-card"><div class="explore-card-top"><span>02 / PREMIUM</span><span class="badge premium">$10 / 30 days</span></div><h3>Follow a defined<br>trade plan.</h3><p>BTC and supported altcoin coverage, with entry levels, protection, targets and position updates.</p><ul><li>BTC · ETH · SOL · XRP · HYPE</li><li>See the plan and payment steps</li><li>Manual payment review</li></ul><a class="btn btn-secondary" href="/premium.html">Explore Premium <span aria-hidden="true">↗</span></a></article>
+      <article class="explore-card"><div class="explore-card-top"><span>03 / MENTORSHIP</span><span class="badge">Four courses</span></div><h3>Build skills<br>you can use.</h3><p>Focused lessons in trading and research. Choose one course and the learning format that suits you.</p><ul><li>Basics and Technical Analysis</li><li>Fundamental Analysis and DeFi</li><li>Group classes or private coaching</li></ul><a class="btn btn-secondary" href="/mentorship.html">Explore courses <span aria-hidden="true">↗</span></a></article>
+    </div>
+  </section>
+
+  <section class="research-story" id="daily-intelligence" aria-labelledby="research-title">
+    <div><span class="eyebrow">CONTEXT BEFORE THE CALL</span><h2 id="research-title">Know what deserves<br>your attention.</h2><p>Use the daily brief to understand the conditions around a trade. Confirmed BTC signals arrive separately with their own plan and follow-up updates.</p><a class="quiet-link" href="/intelligence.html">See how Intelligence works <span aria-hidden="true">↗</span></a></div>
+    <dl><div><dt>Context</dt><dd>A market outlook with the conditions that would change it.</dd></div><div><dt>Catalysts</dt><dd>Important releases and reviewed developments, with uncertainty made clear.</dd></div><div><dt>Conditions</dt><dd>A research watch is separate from a confirmed entry signal.</dd></div></dl>
+  </section>
+
+  <section class="home-process" aria-labelledby="process-title"><div class="section-heading"><div><span class="eyebrow">A MORE DELIBERATE ROUTINE</span><h2 id="process-title">From context to a plan.</h2></div></div><ol class="how"><li><span class="n">1</span><b>Read the context</b>Review the outlook, catalysts and upcoming events.</li><li><span class="n">2</span><b>Wait for a setup</b>Keep research ideas separate from confirmed trade plans.</li><li><span class="n">3</span><b>Follow the updates</b>Track entry, stop, target and position messages in the relevant channel.</li></ol></section>
+
+  <section class="academy-overview" id="mentorship" aria-labelledby="academy-title"><div><span class="eyebrow">CRYPTOEDGE MENTORSHIP</span><h2 id="academy-title">Learn the part<br>that matters to you.</h2><p>Four independent courses. Private coaching or scheduled group classes. Choose your own starting point.</p><a class="btn btn-secondary" href="/mentorship.html">Explore courses <span aria-hidden="true">↗</span></a></div><ul class="academy-subjects"><li><span>01</span><b>Trading Basics</b><small>4 classes</small></li><li><span>02</span><b>Technical Analysis</b><small>8 classes</small></li><li><span>03</span><b>Fundamental Analysis</b><small>6 classes</small></li><li><span>04</span><b>DeFi</b><small>6 classes</small></li></ul></section>
 
   <section class="economic-calendar calendar-home" id="economic-calendar" aria-labelledby="home-calendar-title" data-economic-calendar data-calendar-height="520">
     <div class="calendar-copy">
@@ -71,48 +90,14 @@
     </div>
   </section>
 
-  <p class="section-title">PREMIUM ACCESS · THREE SIMPLE STEPS</p>
-  <ol class="how">
-    <li><span class="n">1</span><b>Pay</b>Send $10 in crypto on the network shown.</li>
-    <li><span class="n">2</span><b>Submit proof</b>Submit your transaction hash or screenshot, then link your Telegram account.</li>
-    <li><span class="n">3</span><b>Get invite</b>After manual payment review, receive your private invitation through the bot.</li>
-  </ol>
-
-  <div class="section-heading"><div><p class="section-title">CHOOSE YOUR FEED</p><h2>Start free. Go further with Premium.</h2></div><p>Pick the coverage that fits you.</p></div>
-  <div class="tiers">
-    <div class="card hover-lift">
-      <div class="card-head"><h3>Free channel</h3><span class="badge">Free</span></div>
-      <p class="sub">Free BTC signals, position updates and daily Intelligence as editions are published.</p>
-      <div class="assets"><span class="asset">BTC</span></div>
-      <a class="tg-link" href="https://t.me/cryptoedgelab" target="_blank" rel="noopener noreferrer">Join @cryptoedgelab →</a>
+  <section class="contact" aria-labelledby="contact-h">
+    <h2 id="contact-h">Contact us</h2>
+    <p>Questions about payment or access? Reach out any time.</p>
+    <div class="contact-links">
+      <a class="contact-link wa" href="https://wa.me/2348028071868" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.4 15.1L2 22l5.05-1.6A9.9 9.9 0 1 0 12.04 2zm0 1.8a8.1 8.1 0 1 1-4.3 15l-.3-.2-3 .95.98-2.9-.2-.3a8.1 8.1 0 0 1 6.82-12.55zM8.6 7.6c-.2 0-.5.1-.7.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3l-1.9-.9c-.3-.1-.5-.1-.7.1l-.9 1.1c-.1.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.8-.8-1.4-1.700-1.600-2-.1-.3 0-.4.1-.5l.4-.5c.1-.1.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.4-.5-.6-.5z"/></svg><span>WhatsApp: +2348028071868</span></a>
+      <a class="contact-link mail" href="mailto:thecryptoedge1@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg><span>thecryptoedge1@gmail.com</span></a>
     </div>
-    <div class="card hover-lift">
-      <div class="card-head"><h3>Premium channel</h3><span class="badge premium">Premium</span></div>
-      <p class="sub">BTC plus the full altcoin list.</p>
-      <div class="assets">
-        <span class="asset">BTC</span><span class="asset">ETH</span><span class="asset">SOL</span>
-        <span class="asset">XRP</span><span class="asset">HYPE</span>
-      </div>
-      <a class="tg-link" href="/premium.html">Get access →</a>
-    </div>
-  </div>
-
-  <p class="section-title">What you get</p>
-  <ul class="features">
-    <li><span class="check" aria-hidden="true">✓</span>Entry, stop loss and take profit levels for each setup.</li>
-    <li><span class="check" aria-hidden="true">✓</span>Alerts as they happen, in the channel you choose.</li>
-  </ul>
-
-  <div class="band">
-    <div>
-      <span class="promo-label">INTRODUCTORY OFFER</span><h2>Premium access</h2>
-      <p>Pay in crypto, submit your proof, and get a private invite link.</p>
-    </div>
-    <div class="price">$10 <small>/ 30 days</small></div>
-    <a class="btn btn-primary" href="/premium.html">Join Premium</a>
-  </div>
-
-  <section class="academy-overview" id="mentorship" aria-labelledby="academy-title"><div><span class="eyebrow">CRYPTOEDGE MENTORSHIP</span><h2 id="academy-title">Learn the part<br>that matters to you.</h2><p>Four independent courses. Private coaching or scheduled group classes. Choose your own starting point.</p><a class="btn btn-secondary" href="/mentorship.html">Explore courses <span aria-hidden="true">↗</span></a></div><ul class="academy-subjects"><li><span>01</span><b>Trading Basics</b><small>4 classes</small></li><li><span>02</span><b>Technical Analysis</b><small>8 classes</small></li><li><span>03</span><b>Fundamental Analysis</b><small>6 classes</small></li><li><span>04</span><b>DeFi</b><small>6 classes</small></li></ul></section>
+  </section>
 
   <section class="legal">
     <h2>Important</h2>
@@ -122,15 +107,6 @@
       <li><b>Refunds:</b> Payments are final once access is granted. If a payment was sent but not confirmed, contact us within 7 days with proof and we will review it.</li>
       <li>By paying you agree that access is for personal use and must not be shared or resold.</li>
     </ul>
-  </section>
-
-  <section class="contact" aria-labelledby="contact-h">
-    <h2 id="contact-h">Contact us</h2>
-    <p>Questions about payment or access? Reach out any time.</p>
-    <div class="contact-links">
-      <a class="contact-link wa" href="https://wa.me/2348028071868" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.4 15.1L2 22l5.05-1.6A9.9 9.9 0 1 0 12.04 2zm0 1.8a8.1 8.1 0 1 1-4.3 15l-.3-.2-3 .95.98-2.9-.2-.3a8.1 8.1 0 0 1 6.82-12.55zM8.6 7.6c-.2 0-.5.1-.7.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3l-1.9-.9c-.3-.1-.5-.1-.7.1l-.9 1.1c-.1.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.8-.8-1.4-1.700-1.600-2-.1-.3 0-.4.1-.5l.4-.5c.1-.1.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.4-.5-.6-.5z"/></svg><span>WhatsApp: +2348028071868</span></a>
-      <a class="contact-link mail" href="mailto:thecryptoedge1@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg><span>thecryptoedge1@gmail.com</span></a>
-    </div>
   </section>
 
   <footer class="footer">

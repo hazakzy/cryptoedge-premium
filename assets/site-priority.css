@@ -1,0 +1,88 @@
+/* Visitor journey and final shared layout refinements. */
+.skip-link { position: fixed; top: -80px; left: 16px; z-index: 1000; padding: 10px 18px; background: var(--accent); color: var(--on-accent); border-radius: 8px; }
+.skip-link:focus { top: 12px; }
+.has-public-nav .public-nav .nav-link, .theme-toggle { min-height: 44px; }
+.theme-toggle { min-width: 44px; }
+.btn, input:not([type=checkbox]):not([type=radio]), select { min-height: 46px; }
+.mentorship-page .course-card .course-actions .btn { min-height: 46px; }
+.page section[id] { scroll-margin-top: 20px; }
+.priority-hero { padding-bottom: 46px !important; }
+.landing-page .priority-hero h1 { font-size: clamp(40px,4.5vw,60px); line-height: 1.12; }
+.landing-page .priority-hero .lead { max-width: 530px; }
+.hero-note { color: var(--muted); font-size: 12px; margin-top: 20px; }
+.brief-preview { padding: 28px; border: 1px solid var(--border-strong); border-radius: 18px; background: linear-gradient(145deg,var(--surface-2),var(--surface)); box-shadow: var(--shadow); }
+.brief-preview-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--muted); font: 500 10px/1.5 var(--mono); letter-spacing: .04em; }
+.brief-preview h2 { font-size: 27px; line-height: 1.25; margin: 26px 0; letter-spacing: -.04em; }
+.brief-preview-rows { margin: 0 0 22px; }
+.brief-preview-rows > div { padding: 17px 0; border-top: 1px solid var(--border); }
+.brief-preview-rows dt { color: var(--text); font-size: 14px; font-weight: 600; }
+.brief-preview-rows dt span { color: var(--accent-text); font: 11px var(--mono); margin-right: 12px; }
+.brief-preview-rows dd { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 6px 0 0 29px; }
+.preview-caption-note { color: var(--muted); font-size: 10px; margin: 14px 0 0; }
+.explore-section { margin: 54px 0 70px; }
+.explore-section .section-heading { align-items: end; margin-bottom: 28px; }
+.explore-section .section-heading h2, .home-process h2 { margin: 10px 0 0; font-size: clamp(28px,3vw,38px); line-height: 1.25; letter-spacing: -.04em; }
+.explore-section .section-heading > p { max-width: 220px; color: var(--muted); font-size: 13px; }
+.explore-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+.explore-card { display: flex; flex-direction: column; min-width: 0; padding: 25px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); }
+.explore-card-featured { border-color: var(--border-strong); background: var(--accent-soft); }
+.explore-card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); font: 500 10px/1.5 var(--mono); }
+.explore-card-top .badge { font: 500 10px/1.5 var(--mono); white-space: nowrap; }
+.explore-card h3 { font-size: 29px; line-height: 1.2; letter-spacing: -.04em; margin: 25px 0 16px; }
+.explore-card > p { color: var(--text-soft); font-size: 14px; line-height: 1.8; margin: 0 0 22px; }
+.explore-card ul { padding: 0; list-style: none; color: var(--muted); font-size: 12px; margin: auto 0 26px; }
+.explore-card li { padding: 8px 0; border-top: 1px solid var(--border); }
+.explore-card .btn { display: flex; justify-content: space-between; gap: 10px; width: 100%; padding: 12px 14px; font-size: 13px; }
+.research-story { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; padding: 52px 0; margin: 10px 0 45px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.research-story h2 { font-size: clamp(30px,3.5vw,42px); line-height: 1.2; letter-spacing: -.045em; margin: 18px 0; }
+.research-story p { color: var(--text-soft); font-size: 15px; max-width: 470px; margin-bottom: 24px; }
+.research-story dl { margin: 0; }
+.research-story dl div { padding: 21px 0; border-bottom: 1px solid var(--border); }
+.research-story dl div:first-child { padding-top: 0; }
+.research-story dt { color: var(--accent-text); font-size: 15px; font-weight: 600; }
+.research-story dd { color: var(--text-soft); font-size: 14px; line-height: 1.8; margin: 8px 0 0; }
+.home-process { padding: 18px 0 0; }
+.home-process .section-heading { margin-bottom: 26px; }
+.landing-page .calendar-home { margin-top: 30px; }
+.landing-page .legal { margin-top: 32px; font-size: 12px; color: var(--muted); }
+.landing-page .legal h2 { font-size: 18px; }
+.landing-page .legal ul { padding-left: 20px; }
+.footer { flex-wrap: wrap; gap: 18px; }
+.calendar-frame.is-unavailable .tradingview-widget-container { min-height: 0; height: auto; }
+.calendar-frame.is-unavailable .tradingview-widget-container__widget { display: none; }
+@media (max-width: 1000px) {
+  .explore-card { padding: 20px; }
+  .explore-card h3 { font-size: 26px; }
+  .research-story { gap: 44px; }
+}
+@media (max-width: 800px) {
+  .explore-grid { grid-template-columns: minmax(0,1fr); gap: 16px; }
+  .explore-card { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); column-gap: 28px; padding: 26px; }
+  .explore-card-top { grid-column: 1/-1; }
+  .explore-card h3 { grid-column: 1; margin: 22px 0 16px; }
+  .explore-card > p { grid-column: 1; margin-bottom: 0; }
+  .explore-card ul { grid-column: 2; grid-row: 2/4; margin: 20px 0; }
+  .explore-card .btn { grid-column: 2; margin-top: 18px; align-self: end; }
+  .research-story { grid-template-columns: 1fr; gap: 34px; }
+  .explore-section .section-heading { display: block; }
+  .explore-section .section-heading > p { max-width: none; margin-top: 12px; }
+}
+@media (max-width: 480px) {
+  .brief-preview { padding: 22px; }
+  .brief-preview-top { align-items: start; }
+  .brief-preview h2 { font-size: 25px; }
+  .explore-section { margin-top: 38px; margin-bottom: 44px; }
+  .explore-card { display: flex; padding: 24px; }
+  .explore-card h3 { font-size: 29px; }
+  .explore-card > p { margin-bottom: 20px; }
+  .explore-card ul { margin: 0 0 24px; }
+  .explore-card .btn { margin-top: auto; }
+  .research-story { padding: 36px 0; margin-bottom: 26px; }
+  .priority-hero .hero-actions .btn { width: 100%; justify-content: center; flex: 0 0 auto; min-height: 48px; }
+  .priority-hero .hero-actions { display: flex; flex-direction: column; align-items: stretch; }
+  .hero-note { line-height: 1.75; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
