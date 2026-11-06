@@ -168,7 +168,7 @@ class CatalystAndIntegrationTests(unittest.TestCase):
             if 'llama' in url:
                 return rows
             raise TimeoutError()
-        with patch('intelligence.core.market', return_value={'stance': 'mixed'}), patch('intelligence.core.get_json', side_effect=fake_json), patch('intelligence.core.fetch', side_effect=TimeoutError()):
+        with patch('intelligence.core.market', return_value={'stance': 'mixed'}), patch('intelligence.core.get_json', side_effect=fake_json), patch('intelligence.core.fetch', side_effect=TimeoutError()), patch('intelligence.defi.governance', side_effect=TimeoutError()):
             item = collect(NOW, [])
         self.assertFalse(item['failures'])
         text, _ = render(item, {}, NOW)

@@ -134,7 +134,7 @@ class WorkerTests(unittest.TestCase):
 
     def test_optional_orderflow_is_not_called_by_default(self):
         rows=[{'slug':s,'name':s,'tvl':1,'change_7d':0} for s in ('aave-v3','uniswap-v3','hyperliquid-bridge')]
-        with patch('intelligence.core.market', return_value={'stance':'up'}), patch('intelligence.core.get_json', return_value=rows), patch('intelligence.core.private_order_flow', side_effect=AssertionError('Unused provider')):
+        with patch('intelligence.core.market', return_value={'stance':'up'}), patch('intelligence.core.get_json', return_value=rows), patch('intelligence.core.private_order_flow', side_effect=AssertionError('Unused provider')), patch('intelligence.core.fetch', side_effect=TimeoutError()), patch('intelligence.defi.governance', side_effect=TimeoutError()):
             item=collect(NOW, [])
         self.assertEqual(item['failures'], {})
         self.assertNotIn('order_flow', item)

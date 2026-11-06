@@ -101,7 +101,7 @@ Environment variables are read directly; `.env.example` is documentation and is 
 
 Coinalyze is not required for the default baseline. To enable optional private order-flow collection, add `COINALYZE_API_KEY`, set `INTELLIGENCE_ORDER_FLOW_ENABLED=true` and supply `INTELLIGENCE_MARKET_MAPPING` as a JSON object with verified `spot` and `futures` provider ID lists for each of BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT and HYPEUSDT. Never guess IDs. An enabled but incomplete optional collection holds publication. These observations exist only in memory and do not alter the initial price-based outlook.
 
-For original, reviewed news and events, set `INTELLIGENCE_EDITORIAL_JSON` to an object with `news` and `events` arrays. Each news record needs `id`, `status:"verified"`, `reviewed_by`, HTTPS `source_url`, offset-aware `published_at`, `verified_at`, `valid_from`, `valid_until` and original `subscriber_copy`. Events also need `event_at` in the next 24 hours. Review must be within the previous 24 hours, and the validity window must include publication. Do not paste article bodies. The program validates record shape and freshness, not factual truth. Current sample editorial is empty, so the first preview explicitly discloses no verified catalyst or complete calendar.
+For original, reviewed news and events, set `INTELLIGENCE_EDITORIAL_JSON` to an object with `news` and `events` arrays. Each news record needs `id`, `status:"verified"`, `reviewed_by`, HTTPS `source_url`, offset-aware `published_at`, `verified_at`, `valid_from`, `valid_until` and original `subscriber_copy`. Events also need `event_at` in the next 24 hours. Review must be within the previous 24 hours, and the validity window must include publication. Do not paste article bodies. The program validates record shape and freshness, not factual truth. Example editorial records are fictional; production editorial input defaults to empty and missing coverage is disclosed.
 
 ## Website and retirement of the earlier draft
 
@@ -110,3 +110,29 @@ The homepage and `/intelligence.html` provide the introduction, clearly labeled 
 An earlier worker remains in Auto's source history. Do not deploy both copies. This folder replaces its archive/volume/website-publisher design. Removing source files does not delete any table or data that was previously created; review any existing Intelligence-only records separately. Do not drop payment or membership tables.
 
 Railway references: [isolated monorepo root directories](https://docs.railway.com/deployments/monorepo), [Dockerfile detection](https://docs.railway.com/builds/dockerfiles).
+
+## Extended free sources — November 2026
+
+The worker now adds scoped public DeFi metrics and scheduled Fed, Bank of England and ECB decisions. No new API key, paid subscription, package, volume, database or separate service is required. Use the existing Railway root directory and worker command after merging. Normal hosting/network usage still applies.
+
+DeFi collection makes four bounded public GET requests: covered DEX volume, Aave fees, Aave protocol revenue, and USDT/USDC reported circulating supply. DEX/fee observations must include a source reporting-period timestamp within 48 hours and a positive prior comparison period. They describe the latest provider reporting window, not live tick-by-tick activity. Stablecoin responses supply current and previous-week figures but no independently verifiable per-asset update timestamp; report them as provider-reported supply, never as exchange inflow or price-adjusted capital movement. Fees, protocol revenue and token-holder returns are different concepts. Missing, invalid or stale series are omitted with a limited-coverage notice.
+
+One read-only public GraphQL query checks the verified Uniswap governance space `uniswapgovernance.eth` and up to 20 recently created active proposals. Highlight at most one vote closing within 24 hours. This is selected Snapshot/off-chain voting coverage, not all governance activity. The public note says proposal, not executed change; it does not claim a proposal is approved, safe or implemented. The space ID is linked from the official Uniswap governance forum. If verification/schema/access fails, governance coverage is unavailable.
+
+Announcement discovery adds dated links from the official Uniswap blog and recent discussion metadata from the official Aave and Uniswap forums, alongside existing Ethereum/Fed feed discovery. Forum authors are community members and are not automatically protocol representatives. All candidates remain unverified and cannot appear as verified catalysts until an editor supplies original reviewed copy. Date-only blog metadata retains a date, without inventing a publication time. No article body is archived or republished.
+
+To inspect the private, read-only queue from `intelligence_worker/`, use:
+
+```text
+python -B -m intelligence.runner --research
+```
+
+It prints only research candidates, calendar/metric observations and coverage failures to the invoking console. It cannot combine with publishing, worker mode or fixtures and never sends a message. Keep this diagnostic output private; it includes source URLs. No output file is created. `--check` also reports unavailable calendar/DeFi counts without research details.
+
+Central-bank dates are parsed from their official schedules. Use the scheduled decision day (Fed final meeting day; ECB Day 2) and officially documented regular publication times: Fed 14:00 New York, BoE 12:00 London, ECB 14:15 Frankfurt. Convert using IANA time zones, then render UK local time. These are scheduled regular decisions, not emergency meetings, press conferences, speeches or an assurance a release has happened. Page changes, expired schedules and access failures are disclosed. Central-bank decisions receive priority within the automatic calendar slots, with reviewed events still prioritised. No consensus or result is invented.
+
+All new sources are supplementary: failure does not suppress an otherwise complete market brief. Whole extra items can be omitted to fit Telegram's message limit. The unchanged manual review requirements still apply to catalysts and actual economic results.
+
+Sources: [free DeFi endpoints](https://api-docs.defillama.com/llms-free.txt), [Snapshot API](https://docs.snapshot.box/tools/api), [official Uniswap governance space reference](https://gov.uniswap.org/t/temp-check-protocol-fee-expansion-eight-more-chains-and-remaining-mainnet-v3-pools/26035), [Uniswap blog](https://blog.uniswap.org/), [Aave forum](https://governance.aave.com/), [Fed calendar](https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm), [Fed publication time](https://www.federalreserve.gov/newsevents/pressreleases/monetary20130313a.htm), [BoE dates](https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates), [BoE publication time](https://www.bankofengland.co.uk/monetary-policy), [ECB calendar](https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html), [ECB publication time](https://www.ecb.europa.eu/press/govcdec/mopo/html/index.en.html).
+
+Validation: 66 offline tests pass. A live read-only collection returned covered DEX volume, Aave fees, Aave revenue and both stablecoin scopes with no DeFi source errors. The verified governance query succeeded and returned no vote closing within the selected horizon; the Uniswap blog had no fresh announcement candidate. BoE and ECB schedules parsed successfully. A concurrent Fed request failed with IncompleteRead and was correctly reported unavailable; its page structure had been inspected separately. Deployed-region access and actual Telegram publication still need verification. No trade or public message was sent.
