@@ -13,6 +13,9 @@ from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
 from .briefing import CALENDARS, calendar_events, spot_movers
 from .formatting import arrange
+from .central_banks import SOURCES as CENTRAL_BANKS, decisions
+from .defi import collect_defi
+from .discovery import UNISWAP_BLOG, announcements
 
 UTC = timezone.utc
 UK = ZoneInfo('Europe/London')
@@ -208,12 +211,20 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False):
         snapshot['failures']['defi'] = type(exc).__name__
     # Supplementary sections fail independently: never invent an empty/full calendar or ranking.
     snapshot['calendar'] = {'events': [], 'sources_ok': [], 'unavailable': [], 'checked_at': now.isoformat()}
+    snapshot['calendar']['expected_sources'] = list(CALENDARS)+list(CENTRAL_BANKS)
     for name, url in CALENDARS.items():
         try:
             snapshot['calendar']['events'] += calendar_events(fetch(url), name, now)
             snapshot['calendar']['sources_ok'].append(name)
         except Exception:
             snapshot['calendar']['unavailable'].append(name)
+    for name, url in CENTRAL_BANKS.items():
+        try:
+            snapshot['calendar']['events'] += decisions(fetch(url), name, now)
+            snapshot['calendar']['sources_ok'].append(name)
+        except Exception:
+            snapshot['calendar']['unavailable'].append(name)
+    snapshot['defi_metrics'] = collect_defi(now, get_json)
     try:
         snapshot['movers'] = spot_movers(get_json('https://api.bybit.com/v5/market/tickers?category=spot'), now)
     except Exception:
@@ -227,6 +238,20 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False):
                     seen.add(item['id'])
         except Exception as exc:
             snapshot['failures'][url] = type(exc).__name__
+    snapshot['research_unavailable'] = []
+    try:
+        snapshot['news_candidates'] += announcements(fetch(UNISWAP_BLOG), now)
+    except Exception:
+        snapshot['research_unavailable'].append(UNISWAP_BLOG)
+    for url in ('https://governance.aave.com/latest.rss', 'https://gov.uniswap.org/latest.rss'):
+        try:
+            for item in feed_candidates(fetch(url), url, now):
+                if item['id'] not in seen:
+                    item['category'] = 'governance_discussion'
+                    snapshot['news_candidates'].append(item)
+                    seen.add(item['id'])
+        except Exception:
+            snapshot['research_unavailable'].append(url)
     return snapshot
 
 
@@ -291,7 +316,7 @@ def calendar_lines(snapshot, now):
     try:
         if not timedelta(0) <= now-instant(calendar['checked_at']) <= timedelta(minutes=20):
             raise ValueError('Stale calendar')
-        items = sorted(calendar.get('events', []), key=lambda item: item['event_at'])
+        items = sorted(calendar.get('events', []), key=lambda item: (item.get('priority', 1), item['event_at']))
         result = []
         seen = set()
         for item in items:
@@ -305,7 +330,8 @@ def calendar_lines(snapshot, now):
             seen.add(identity)
             status = 'Scheduled; result pending.' if when >= now else 'Scheduled time passed; result unverified.'
             result.append(when.astimezone(UK).strftime('%d %b %H:%M')+' — '+name+'. '+status+' '+safe_copy(item['relevance'], 100))
-        return result[:4], bool(calendar.get('unavailable')) or len(calendar.get('sources_ok', [])) != len(CALENDARS)
+        expected = set(calendar.get('expected_sources', CALENDARS))
+        return result[:4], bool(calendar.get('unavailable')) or not expected.issubset(calendar.get('sources_ok', []))
     except (KeyError, TypeError, ValueError):
         return [], True
 
@@ -333,6 +359,42 @@ def mover_lines(snapshot, now):
         return result
     except (KeyError, TypeError, ValueError):
         return ['Current gainers and losers unavailable; no ranking published.']
+
+
+def defi_metric_lines(snapshot, now):
+    data = snapshot.get('defi_metrics')
+    if not data:
+        return [], None
+    try:
+        if not timedelta(0) <= now-instant(data['checked_at']) <= timedelta(minutes=20):
+            raise ValueError('Expired DeFi collection')
+        result = []
+        for row in data.get('activity', [])[:3]:
+            if now-instant(row['period_at']) > timedelta(hours=48) or instant(row['period_at']) > now+timedelta(minutes=5):
+                continue
+            name = safe_copy(row['name'], 40)
+            value, change = number(row['value']), number(row['change_pct'])
+            if value < 0 or change < -100:
+                continue
+            amount = f'${value/1e9:.2f}bn' if value >= 1e9 else f'${value/1e6:.2f}m' if value >= 1e6 else f'${value:,.0f}'
+            period = instant(row['period_at']).astimezone(UK).strftime('%d %b')
+            result.append(f'{name}: {amount} in the latest reported 24h ({change:+.1f}% vs prior 24h; period {period}).')
+        supplies = []
+        for row in data.get('stablecoins', []):
+            if row['symbol'] in ('USDT', 'USDC'):
+                supplies.append(row['symbol']+f' {number(row["change_7d"]):+.2f}%')
+        if supplies:
+            result.append('Reported circulating supply / 7d: '+', '.join(supplies)+'. Supply change is not exchange inflow.')
+        for row in data.get('votes', [])[:1]:
+            end = instant(row['ends_at'])
+            if not now < end <= now+timedelta(hours=24):
+                continue
+            title, protocol = safe_copy(row['title'], 100), safe_copy(row['protocol'], 30)
+            result.append(protocol+' vote closes '+end.astimezone(UK).strftime('%d %b %H:%M')+': '+title+'. Proposal; not an executed change.')
+        note = 'Some DeFi metrics unavailable; coverage is limited.' if data.get('unavailable') else 'Fees and protocol revenue do not imply token-holder returns.'
+        return result, note
+    except (KeyError, TypeError, ValueError):
+        return [], 'Extended DeFi data unavailable; coverage is limited.'
 
 
 def render(snapshot, editorial, now, edition='daily'):
@@ -363,7 +425,7 @@ def render(snapshot, editorial, now, edition='daily'):
     calendar_display = (events+official_events)[:3]
     lines += ['• '+x for x in calendar_display] or ['No scheduled release highlighted from available coverage.']
     lines += [('Some calendar inputs unavailable. ' if calendar_unavailable else '')+
-              'Selected US releases. Calendar coverage is incomplete.']
+              'Selected US releases and central-bank decisions. Calendar coverage is incomplete.']
     lines += ['Forecasts and results appear only when verified.']
     lines += ['', 'DEFI WATCH']
     defi_lines = []
@@ -376,7 +438,11 @@ def render(snapshot, editorial, now, edition='daily'):
                 defi_lines.append(f'{name}: reported locked value has {word} over seven days. Price effects and token value capture still need review.')
         except (ValueError, TypeError, KeyError):
             continue
-    lines += ['• '+x for x in defi_lines[:2]] or ['No material DeFi change highlighted from available coverage.']
+    metrics, defi_note = defi_metric_lines(snapshot, now)
+    defi_display = defi_lines[:1]+metrics if snapshot.get('defi_metrics') else defi_lines[:2]
+    lines += ['• '+x for x in defi_display] or ['No material DeFi change highlighted from available coverage.']
+    if defi_note:
+        lines += [defi_note]
     lines += ['', 'WATCHLIST']
     watch = {'up': 'Continuation watch; await a separate confirmed setup.',
              'down': 'Weak structure; await a separate confirmed setup.',
@@ -394,7 +460,7 @@ def render(snapshot, editorial, now, edition='daily'):
         lines += ['', 'Coverage is incomplete; this assessment is limited.']
     # Drop whole lower-priority extra items rather than truncating a fact or withholding the edition.
     omitted = False
-    for extra in list(reversed(calendar_display[1:]))+list(reversed(news[1:])):
+    for extra in list(reversed(calendar_display[1:]))+list(reversed(news[1:]))+list(reversed(defi_display[2:])):
         if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 <= 3830:
             break
         lines.remove('• '+extra)

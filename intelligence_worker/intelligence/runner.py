@@ -65,6 +65,9 @@ def prepare(config, now, fixture=None):
         (not config['order_flow'] or set(snapshot.get('order_flow', {})) == set(SYMBOLS)))
     status = {'outlook': assessment['outlook'], 'complete': complete,
         'verified_news': assessment['verified_news_count'], 'failures': len(snapshot.get('failures', {}))}
+    status['defi_unavailable'] = len(snapshot.get('defi_metrics', {}).get('unavailable', []))
+    status['calendar_unavailable'] = len(snapshot.get('calendar', {}).get('unavailable', []))
+    status['research_candidates'] = len(snapshot.get('news_candidates', []))
     return text, status, instant(snapshot['as_of'])+timedelta(minutes=20)
 
 
@@ -108,9 +111,12 @@ def main():
     parser.add_argument('--deliver', action='store_true', help='Permit Telegram sends; requires private environment settings')
     parser.add_argument('--publish-now', action='store_true', help='Explicit one-off send; check Telegram first to avoid duplicates')
     parser.add_argument('--check', action='store_true', help='Collect and report coverage without printing the brief')
+    parser.add_argument('--research', action='store_true', help='Private research queue and coverage; never publishes')
     parser.add_argument('--fixture', help='Preview a fictional snapshot; cannot send')
     parser.add_argument('--at', help='Offset-aware fixture time only')
     args = parser.parse_args()
+    if args.research and (args.worker or args.deliver or args.publish_now or args.check or args.fixture or args.at):
+        parser.error('--research is a live read-only diagnostic')
     if args.at and not args.fixture:
         parser.error('--at requires --fixture')
     if args.deliver and (args.fixture or args.check):
@@ -122,6 +128,11 @@ def main():
     try:
         config = settings()
         now = instant(args.at) if args.at else datetime.now(UTC)
+        if args.research:
+            snapshot = collect(now, FEEDS, config['mapping'], order_flow_enabled=config['order_flow'])
+            print(json.dumps({k: snapshot.get(k) for k in ('as_of', 'news_candidates', 'research_unavailable',
+                'defi_metrics', 'calendar', 'failures')}), flush=True)
+            return
         if args.worker:
             worker = Worker(config, now, args.deliver)
             print(json.dumps({'service': 'cryptoedge-intelligence', 'storage': 'memory_only',
