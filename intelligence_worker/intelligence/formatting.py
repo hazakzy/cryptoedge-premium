@@ -3,7 +3,7 @@ import html
 import re
 
 HEADINGS = {
-    'TOP CATALYSTS — VERIFIED', 'ECONOMIC CALENDAR — UK TIMES', 'DEFI WATCH',
+    'MARKET HEADLINES', 'COMING UP — ECONOMIC CALENDAR (UK TIMES)', 'DEFI WATCH',
     'WATCHLIST', 'WHAT CHANGES THE VIEW', 'TOP GAINERS & LOSERS — 24H',
     'Top 3 gainers:', 'Top 3 losers:',
 }
@@ -36,9 +36,14 @@ def arrange(text):
 
 def telegram_html(text):
     result = []
+    in_headlines = False
     for index, line in enumerate(text.splitlines()):
+        if line in HEADINGS:
+            in_headlines = line == 'MARKET HEADLINES'
         escaped = html.escape(line, quote=False)
         if (index == 0 and line.startswith('CRYPTOEDGELAB')) or line in HEADINGS or line.startswith('MARKET OUTLOOK: '):
+            escaped = '<b>'+escaped+'</b>'
+        elif in_headlines and line.startswith('• '):
             escaped = '<b>'+escaped+'</b>'
         elif line == 'DEMONSTRATION — FICTIONAL DATA':
             escaped = '<b>'+escaped+'</b>'
