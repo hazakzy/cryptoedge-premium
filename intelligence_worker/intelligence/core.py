@@ -189,7 +189,7 @@ def defi_observations(rows):
     return selected
 
 
-def collect(now, feeds, mapping=None, order_flow_enabled=False):
+def collect(now, feeds, mapping=None, order_flow_enabled=False, headline_feeds=()):
     snapshot = {'version': 1, 'as_of': now.isoformat(), 'mode': 'live',
                 'markets': {}, 'defi': [], 'news_candidates': [], 'failures': {}}
     if order_flow_enabled:
@@ -239,6 +239,14 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False):
         except Exception as exc:
             snapshot['failures'][url] = type(exc).__name__
     snapshot['research_unavailable'] = []
+    for url in headline_feeds:
+        try:
+            for item in feed_candidates(fetch(url), url, now):
+                if item['id'] not in seen:
+                    snapshot['news_candidates'].append(item)
+                    seen.add(item['id'])
+        except Exception:
+            snapshot['research_unavailable'].append(url)
     try:
         snapshot['news_candidates'] += announcements(fetch(UNISWAP_BLOG), now)
     except Exception:
@@ -308,7 +316,7 @@ def editorial_items(editorial, kind, now):
             accepted.append(prefix+copy)
         except (ValueError, KeyError, TypeError):
             rejected.append(item.get('id', 'missing-id'))
-    return accepted[:3], rejected
+    return accepted[:5 if kind == 'news' else 3], rejected
 
 
 def calendar_lines(snapshot, now):
@@ -416,10 +424,12 @@ def render(snapshot, editorial, now, edition='daily'):
                    'mixed': 'Shorter-term movement and the wider structure disagree. Avoid treating direction as settled.',
                    'flat': 'There is no clear directional preference.',
                    'unavailable': 'A reliable current directional assessment is unavailable.'}[stance]
-    lines += ['MARKET OUTLOOK: '+outlook, explanation, '', 'TOP CATALYSTS — VERIFIED']
+    lines += ['MARKET OUTLOOK: '+outlook, explanation, '', 'MARKET HEADLINES']
     news, rejected_news = editorial_items(editorial, 'news', now)
     lines += ['• '+x for x in news] or ['No verified material catalyst included in this edition.']
-    lines += ['', 'ECONOMIC CALENDAR — UK TIMES']
+    if len(news) < 5:
+        lines.append(f'Headline coverage: {len(news)} of 5 reviewed items available.')
+    lines += ['', 'COMING UP — ECONOMIC CALENDAR (UK TIMES)']
     events, rejected_events = editorial_items(editorial, 'events', now)
     official_events, calendar_unavailable = calendar_lines(snapshot, now)
     calendar_display = (events+official_events)[:3]
@@ -460,11 +470,20 @@ def render(snapshot, editorial, now, edition='daily'):
         lines += ['', 'Coverage is incomplete; this assessment is limited.']
     # Drop whole lower-priority extra items rather than truncating a fact or withholding the edition.
     omitted = False
-    for extra in list(reversed(calendar_display[1:]))+list(reversed(news[1:]))+list(reversed(defi_display[2:])):
+    for extra in list(reversed(calendar_display[1:]))+list(reversed(defi_display[2:])):
         if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 <= 3830:
             break
         lines.remove('• '+extra)
         omitted = True
+    if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 > 3830:
+        for item in reversed(news):
+            compact = re.split(r' Why it matters: | Watch: ', item, maxsplit=1)[0]
+            if compact != item:
+                index = lines.index('• '+item)
+                lines[index] = '• '+compact
+                omitted = True
+            if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 <= 3830:
+                break
     if omitted:
         lines += ['Additional items omitted for brevity.']
     text = arrange('\n'.join(lines))
