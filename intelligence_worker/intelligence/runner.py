@@ -1,6 +1,7 @@
 """Stateless daily Intelligence worker. Telegram is the publication archive."""
 import argparse
 import json
+from urllib.parse import urlparse
 import os
 import re
 import time
@@ -40,7 +41,14 @@ def settings(env=None):
     flow = flag(env, 'INTELLIGENCE_ORDER_FLOW_ENABLED')
     if flow and (not env.get('COINALYZE_API_KEY') or set(mapping) != set(SYMBOLS)):
         raise ValueError('Enabled order flow requires credentials and complete mapping')
-    return {'clock': clock, 'channel': channel, 'mapping': mapping, 'editorial': editorial,
+    headline_feeds = tuple(dict.fromkeys(
+        env.get('INTELLIGENCE_HEADLINE_FEEDS', '').split()))
+    if len(headline_feeds) > 5 or any(
+        urlparse(url).scheme != 'https' or not urlparse(url).hostname
+        or urlparse(url).username or urlparse(url).password for url in headline_feeds
+    ):
+        raise ValueError('Set up to five public HTTPS headline feeds')
+    return {'headline_feeds': headline_feeds, 'clock': clock, 'channel': channel, 'mapping': mapping, 'editorial': editorial,
         'order_flow': flow, 'enabled': flag(env, 'INTELLIGENCE_PUBLICATION_ENABLED'),
         'rights': flag(env, 'INTELLIGENCE_DATA_RIGHTS_CONFIRMED'),
         'token': env.get('TELEGRAM_BOT_TOKEN', '')}
@@ -58,7 +66,8 @@ def schedule_due(now, clock):
 
 def prepare(config, now, fixture=None):
     snapshot = json.loads(Path(fixture).read_text(encoding='utf-8')) if fixture else collect(
-        now, FEEDS, config['mapping'], order_flow_enabled=config['order_flow'])
+        now, FEEDS, config['mapping'], order_flow_enabled=config['order_flow'],
+        headline_feeds=config.get('headline_feeds', ()))
     text, assessment = render(snapshot, config['editorial'], now)
     complete = (snapshot.get('mode') == 'live' and not snapshot.get('failures') and
         set(snapshot.get('markets', {})) == set(SYMBOLS) and bool(snapshot.get('defi')) and
@@ -129,7 +138,8 @@ def main():
         config = settings()
         now = instant(args.at) if args.at else datetime.now(UTC)
         if args.research:
-            snapshot = collect(now, FEEDS, config['mapping'], order_flow_enabled=config['order_flow'])
+            snapshot = collect(now, FEEDS, config['mapping'], order_flow_enabled=config['order_flow'],
+                               headline_feeds=config['headline_feeds'])
             print(json.dumps({k: snapshot.get(k) for k in ('as_of', 'news_candidates', 'research_unavailable',
                 'defi_metrics', 'calendar', 'failures')}), flush=True)
             return
