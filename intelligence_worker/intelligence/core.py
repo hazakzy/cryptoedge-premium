@@ -99,7 +99,7 @@ def market(symbol, now):
             'retrieved_at': datetime.now(UTC).isoformat()}
 
 
-def feed_candidates(raw, source, now):
+def feed_candidates(raw, source, now, *, hours=24):
     """Discovery only: no external feed text becomes subscriber copy automatically."""
     root = ET.fromstring(raw)
     items = root.findall('.//item') + root.findall('{http://www.w3.org/2005/Atom}entry')
@@ -118,7 +118,7 @@ def feed_candidates(raw, source, now):
             published = published.astimezone(UTC)
         except (ValueError, TypeError, AttributeError):
             continue
-        if now-timedelta(hours=24) <= published <= now and title and link:
+        if now-timedelta(hours=hours) <= published <= now and title and link:
             result.append({'id': hashlib.sha256(link.encode()).hexdigest()[:16],
                            'title': title[:300], 'url': link, 'source': source,
                            'published_at': published.isoformat(), 'status': 'unverified_candidate'})
@@ -264,7 +264,7 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False, headline_feeds=(
         except Exception:
             snapshot['research_unavailable'].append(url)
     if roundup_day:
-        snapshot['official_updates'] = collect_official_updates(now, fetch, uniswap)
+        snapshot['official_updates'] = collect_official_updates(now, fetch, uniswap, feed_candidates)
     return snapshot
 
 
