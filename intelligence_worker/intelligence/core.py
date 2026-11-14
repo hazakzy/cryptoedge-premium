@@ -12,10 +12,10 @@ from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
 from .briefing import CALENDARS, calendar_events, spot_movers
-from .formatting import arrange
+from .formatting import arrange, checked_source, visible_text
 from .central_banks import SOURCES as CENTRAL_BANKS, decisions
 from .defi import collect_defi
-from .discovery import UNISWAP_BLOG, announcements
+from .discovery import UNISWAP_BLOG, announcements, collect_official_updates, defi_priority, DEFI_EVENT_PRIORITY
 
 UTC = timezone.utc
 UK = ZoneInfo('Europe/London')
@@ -99,7 +99,7 @@ def market(symbol, now):
             'retrieved_at': datetime.now(UTC).isoformat()}
 
 
-def feed_candidates(raw, source, now):
+def feed_candidates(raw, source, now, *, hours=24):
     """Discovery only: no external feed text becomes subscriber copy automatically."""
     root = ET.fromstring(raw)
     items = root.findall('.//item') + root.findall('{http://www.w3.org/2005/Atom}entry')
@@ -118,7 +118,7 @@ def feed_candidates(raw, source, now):
             published = published.astimezone(UTC)
         except (ValueError, TypeError, AttributeError):
             continue
-        if now-timedelta(hours=24) <= published <= now and title and link:
+        if now-timedelta(hours=hours) <= published <= now and title and link:
             result.append({'id': hashlib.sha256(link.encode()).hexdigest()[:16],
                            'title': title[:300], 'url': link, 'source': source,
                            'published_at': published.isoformat(), 'status': 'unverified_candidate'})
@@ -239,16 +239,19 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False, headline_feeds=(
         except Exception as exc:
             snapshot['failures'][url] = type(exc).__name__
     snapshot['research_unavailable'] = []
+    roundup_day = now.astimezone(UK).weekday() in (0, 4)
     for url in headline_feeds:
         try:
-            for item in feed_candidates(fetch(url), url, now):
+            for item in feed_candidates(fetch(url), url, now, hours=96 if roundup_day else 24):
                 if item['id'] not in seen:
                     snapshot['news_candidates'].append(item)
                     seen.add(item['id'])
         except Exception:
             snapshot['research_unavailable'].append(url)
+    uniswap = []
     try:
-        snapshot['news_candidates'] += announcements(fetch(UNISWAP_BLOG), now)
+        uniswap = announcements(fetch(UNISWAP_BLOG), now, days=4 if roundup_day else 2)
+        snapshot['news_candidates'] += uniswap
     except Exception:
         snapshot['research_unavailable'].append(UNISWAP_BLOG)
     for url in ('https://governance.aave.com/latest.rss', 'https://gov.uniswap.org/latest.rss'):
@@ -260,6 +263,13 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False, headline_feeds=(
                     seen.add(item['id'])
         except Exception:
             snapshot['research_unavailable'].append(url)
+    if roundup_day:
+        snapshot['official_updates'] = collect_official_updates(now, fetch, uniswap, feed_candidates)
+        snapshot['defi_review_candidates'] = sorted(
+            (item for item in snapshot['news_candidates']
+             if defi_priority(item['title']) < len(DEFI_EVENT_PRIORITY)),
+            key=lambda item: defi_priority(item['title']),
+        )[:20]
     return snapshot
 
 
@@ -271,7 +281,8 @@ def safe_copy(text, limit=320):
     return text.strip()
 
 
-def editorial_items(editorial, kind, now):
+def editorial_items(editorial, kind, now, *, sources=None):
+    is_news = kind != 'events'
     accepted, rejected = [], []
     for item in editorial.get(kind, []):
         try:
@@ -294,8 +305,10 @@ def editorial_items(editorial, kind, now):
                 published = instant(item['published_at'])
                 if published > now or published > verified:
                     raise ValueError('Future publication or review predates publication')
-            copy = safe_copy(item['subscriber_copy'], 220 if kind == 'news' else 140)
-            if kind == 'news':
+            copy = safe_copy(item['subscriber_copy'], 220 if is_news else 140)
+            if is_news:
+                if kind != 'news':
+                    copy = safe_copy(item['subject'], 32) + ': ' + safe_copy(copy, 140)
                 if item.get('impact_copy'):
                     copy += ' Why it matters: '+safe_copy(item['impact_copy'], 120)
                 if item.get('affected_assets'):
@@ -313,10 +326,18 @@ def editorial_items(editorial, kind, now):
                          ' Scheduled; result pending.' if event_at >= now else
                          ' Scheduled time passed; result unverified.')
             prefix = event_at.astimezone(UK).strftime('%d %b %H:%M') + ' — ' if kind == 'events' else ''
+            if sources is not None:
+                source = checked_source(item['source_url'])
+                if source in sources:
+                    continue
+                sources.add(source)
+                copy += '\n  Source: '+source
             accepted.append(prefix+copy)
+            if len(accepted) == (5 if kind == 'news' else 3):
+                break
         except (ValueError, KeyError, TypeError):
             rejected.append(item.get('id', 'missing-id'))
-    return accepted[:5 if kind == 'news' else 3], rejected
+    return accepted, rejected
 
 
 def calendar_lines(snapshot, now):
@@ -425,10 +446,30 @@ def render(snapshot, editorial, now, edition='daily'):
                    'flat': 'There is no clear directional preference.',
                    'unavailable': 'A reliable current directional assessment is unavailable.'}[stance]
     lines += ['MARKET OUTLOOK: '+outlook, explanation, '', 'MARKET HEADLINES']
-    news, rejected_news = editorial_items(editorial, 'news', now)
+    sources = set()
+    news, rejected_news = editorial_items(editorial, 'news', now, sources=sources)
     lines += ['• '+x for x in news] or ['No verified material catalyst included in this edition.']
     if len(news) < 5:
         lines.append(f'Headline coverage: {len(news)} of 5 reviewed items available.')
+    roundup = []
+    if now.astimezone(UK).weekday() in (0, 4):
+        for kind, heading in (('defi', 'DEFI DEVELOPMENTS'), ('tokens', 'TOP TOKEN UPDATES')):
+            updates, rejected = editorial_items(editorial, kind, now, sources=sources)
+            for item in snapshot.get('official_updates', {}).get(kind, []):
+                if len(updates) == 3:
+                    break
+                try:
+                    source = checked_source(item['url'])
+                    copy = safe_copy(item['copy'], 180)
+                except (KeyError, TypeError, ValueError):
+                    continue
+                if source not in sources:
+                    sources.add(source)
+                    updates.append(copy + '\n  Source: '+source)
+            rejected_news.extend(rejected)
+            roundup.extend(updates)
+            lines += ['', heading]
+            lines += ['• '+item for item in updates] or ['No reviewed updates available for this edition.']
     lines += ['', 'COMING UP — ECONOMIC CALENDAR (UK TIMES)']
     events, rejected_events = editorial_items(editorial, 'events', now)
     official_events, calendar_unavailable = calendar_lines(snapshot, now)
@@ -471,23 +512,32 @@ def render(snapshot, editorial, now, edition='daily'):
     # Drop whole lower-priority extra items rather than truncating a fact or withholding the edition.
     omitted = False
     for extra in list(reversed(calendar_display[1:]))+list(reversed(defi_display[2:])):
-        if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 <= 3830:
+        if len(visible_text(arrange('\n'.join(lines))).encode('utf-16-le'))//2 <= 3830:
             break
         lines.remove('• '+extra)
         omitted = True
-    if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 > 3830:
-        for item in reversed(news):
-            compact = re.split(r' Why it matters: | Watch: ', item, maxsplit=1)[0]
+    if len(visible_text(arrange('\n'.join(lines))).encode('utf-16-le'))//2 > 3830:
+        for item in reversed(news+roundup):
+            body, source = item.split('\n  Source: ', 1)
+            compact = re.split(r' Why it matters: | Watch: ', body, maxsplit=1)[0] + '\n  Source: ' + source
             if compact != item:
                 index = lines.index('• '+item)
                 lines[index] = '• '+compact
                 omitted = True
-            if len(arrange('\n'.join(lines)).encode('utf-16-le'))//2 <= 3830:
+            if len(visible_text(arrange('\n'.join(lines))).encode('utf-16-le'))//2 <= 3830:
                 break
+    for item in reversed(roundup):
+        if len(visible_text(arrange('\n'.join(lines))).encode('utf-16-le'))//2 <= 3830:
+            break
+        suffix = '\n'+item.split('\n', 1)[1]
+        index = next(index for index, line in enumerate(lines) if line.startswith('• ') and line.endswith(suffix))
+        lines[index] = ''
+        omitted = True
     if omitted:
         lines += ['Additional items omitted for brevity.']
     text = arrange('\n'.join(lines))
-    if len(text.encode('utf-16-le'))//2 > 3900 or PRIVATE_TERMS.search(text):
+    visible = visible_text(text)
+    if len(visible.encode('utf-16-le'))//2 > 3900 or PRIVATE_TERMS.search(visible):
         raise ValueError('Subscriber message exceeds length or disclosure policy')
     return text, {'outlook': outlook, 'stance': stance,
                   'rejected_editorial_ids': rejected_news+rejected_events,

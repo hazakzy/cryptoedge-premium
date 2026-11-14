@@ -51,7 +51,7 @@ class RenderTests(unittest.TestCase):
     def test_verified_original_copy_and_private_sources(self):
         text, a = render(snapshot(), {'news': [news()]}, NOW)
         self.assertIn('confirmed protocol update', text)
-        self.assertNotIn('example.org', text)
+        self.assertIn('Source: https://example.org/original', text)
         self.assertEqual(a['verified_news_count'], 1)
 
 
