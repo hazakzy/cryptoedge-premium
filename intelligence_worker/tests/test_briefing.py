@@ -147,8 +147,28 @@ class CatalystAndIntegrationTests(unittest.TestCase):
         self.assertNotIn('bybit', text.lower())
         self.assertLessEqual(len(text.encode('utf-16-le'))//2, 3900)
 
+    def test_roundups_run_monday_and_friday_with_links_and_deduplication(self):
+        from intelligence.formatting import telegram_html
+
+        for offset in (1, 2, 5):
+            now = NOW + timedelta(days=offset)
+            item = {**snapshot(), 'as_of': now.isoformat(), 'official_updates': {
+                'tokens': [{'copy': 'SOL: Client release', 'url': 'https://example.org/sol'}],
+                'defi': [{'copy': 'Uniswap: Update', 'url': 'https://example.org/original?utm_source=test'}],
+            }}
+            news = {**editorial(), 'published_at': now.isoformat(), 'verified_at': now.isoformat(),
+                    'valid_from': now.isoformat(), 'valid_until': (now+timedelta(hours=2)).isoformat(),
+                    'source_url': 'https://example.org/original'}
+            text, _ = render(item, {'news': [news]}, now)
+            html = telegram_html(text)
+            self.assertEqual('DEFI DEVELOPMENTS' in html, offset in (2, 5))
+            self.assertEqual('TOP TOKEN UPDATES' in html, offset in (2, 5))
+            self.assertEqual('https://example.org/sol' in html, offset in (2, 5))
+            self.assertEqual(html.count('https://example.org/original'), 1)
+            self.assertIn('TOP GAINERS &amp; LOSERS', html)
+
     def test_full_length_editorial_fits_by_omitting_whole_extra_items(self):
-        news = [{**editorial(), 'id': str(i), 'subscriber_copy': '\U0001f535'*220,
+        news = [{**editorial(), 'id': str(i), 'source_url': f'https://example.org/news/{i}', 'subscriber_copy': '\U0001f535'*220,
                  'impact_copy': 'y'*120, 'affected_assets': ['ABCDEFGHIJKL']*5} for i in range(3)]
         events = [{**editorial('events'), 'id': str(i), 'subscriber_copy': 'z'*140,
                    'forecast': 'f'*30, 'previous': 'p'*30} for i in range(3)]

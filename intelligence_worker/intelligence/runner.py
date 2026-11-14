@@ -36,7 +36,7 @@ def settings(env=None):
     if not isinstance(mapping, dict) or not isinstance(editorial, dict):
         raise ValueError('Invalid JSON settings')
     if any(not isinstance(editorial.get(kind, []), list) or
-           any(not isinstance(item, dict) for item in editorial.get(kind, [])) for kind in ('news', 'events')):
+           any(not isinstance(item, dict) for item in editorial.get(kind, [])) for kind in ('news', 'events', 'defi', 'tokens')):
         raise ValueError('Invalid editorial records')
     flow = flag(env, 'INTELLIGENCE_ORDER_FLOW_ENABLED')
     if flow and (not env.get('COINALYZE_API_KEY') or set(mapping) != set(SYMBOLS)):
