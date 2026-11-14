@@ -15,7 +15,7 @@ from .briefing import CALENDARS, calendar_events, spot_movers
 from .formatting import arrange, checked_source, visible_text
 from .central_banks import SOURCES as CENTRAL_BANKS, decisions
 from .defi import collect_defi
-from .discovery import UNISWAP_BLOG, announcements, collect_official_updates
+from .discovery import UNISWAP_BLOG, announcements, collect_official_updates, defi_priority, DEFI_EVENT_PRIORITY
 
 UTC = timezone.utc
 UK = ZoneInfo('Europe/London')
@@ -239,15 +239,15 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False, headline_feeds=(
         except Exception as exc:
             snapshot['failures'][url] = type(exc).__name__
     snapshot['research_unavailable'] = []
+    roundup_day = now.astimezone(UK).weekday() in (0, 4)
     for url in headline_feeds:
         try:
-            for item in feed_candidates(fetch(url), url, now):
+            for item in feed_candidates(fetch(url), url, now, hours=96 if roundup_day else 24):
                 if item['id'] not in seen:
                     snapshot['news_candidates'].append(item)
                     seen.add(item['id'])
         except Exception:
             snapshot['research_unavailable'].append(url)
-    roundup_day = now.astimezone(UK).weekday() in (0, 4)
     uniswap = []
     try:
         uniswap = announcements(fetch(UNISWAP_BLOG), now, days=4 if roundup_day else 2)
@@ -265,6 +265,11 @@ def collect(now, feeds, mapping=None, order_flow_enabled=False, headline_feeds=(
             snapshot['research_unavailable'].append(url)
     if roundup_day:
         snapshot['official_updates'] = collect_official_updates(now, fetch, uniswap, feed_candidates)
+        snapshot['defi_review_candidates'] = sorted(
+            (item for item in snapshot['news_candidates']
+             if defi_priority(item['title']) < len(DEFI_EVENT_PRIORITY)),
+            key=lambda item: defi_priority(item['title']),
+        )[:20]
     return snapshot
 
 

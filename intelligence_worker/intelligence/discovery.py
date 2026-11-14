@@ -62,12 +62,25 @@ def announcements(raw, now, days=2):
 DEFI_BLOG_FEEDS = {'Lido': 'https://blog.lido.fi/rss/'}
 
 RELEASE_REPOS = {
-    'defi': {'Aave': 'aave/aave-v3-origin', 'Morpho': 'morpho-org/morpho-blue',
-             'Pendle': 'pendle-finance/pendle-core-v2-public'},
     'tokens': {'BTC': 'bitcoin/bitcoin', 'ETH': 'ethereum/go-ethereum',
                'SOL': 'anza-xyz/agave', 'XRP': 'XRPLF/rippled'},
 }
 ATOM = '{http://www.w3.org/2005/Atom}'
+
+
+DEFI_EVENT_PRIORITY = (
+    re.compile(r"\b(exploit|incident|emergency|paused?|recovery|shutdown|wind.down)\b", re.I),
+    re.compile(r"\b(launch(?:es|ed)?|goes live|now live|mainnet|upgrade|migration|buybacks?|depeg)\b", re.I),
+    re.compile(r"\b(governance|proposal|vote|partnership|integration|expansion)\b", re.I),
+)
+
+
+def defi_priority(title):
+    """Rank material event headlines and skip routine posts."""
+    for index, pattern in enumerate(DEFI_EVENT_PRIORITY):
+        if pattern.search(title):
+            return index
+    return len(DEFI_EVENT_PRIORITY)
 
 
 def collect_official_updates(now, fetch, uniswap, parse_feed):
@@ -109,12 +122,11 @@ def collect_official_updates(now, fetch, uniswap, parse_feed):
     with ThreadPoolExecutor(max_workers=4) as pool:
         for kind, repos in RELEASE_REPOS.items():
             rows = [row for batch in pool.map(releases, repos.items()) for row in batch]
-            if kind == 'defi':
-                dated_defi.extend((updated.date().isoformat(), item) for updated, item in rows)
-            else:
-                result[kind] = [item for _, item in sorted(rows, key=lambda row: row[0], reverse=True)]
+            result[kind] = [item for _, item in sorted(rows, key=lambda row: row[0], reverse=True)]
         for subject, rows in zip(DEFI_BLOG_FEEDS, pool.map(blog_announcements, DEFI_BLOG_FEEDS.items())):
             dated_defi.extend((row['published_at'][:10], {'copy': subject+': '+row['title'][:150], 'url': row['url']})
                               for row in rows)
-    result['defi'] = [item for _, item in sorted(dated_defi, key=lambda row: row[0], reverse=True)]
+    recent = sorted(dated_defi, key=lambda row: row[0], reverse=True)
+    ranked = sorted(recent, key=lambda row: defi_priority(row[1]['copy']))
+    result['defi'] = [item for _, item in ranked if defi_priority(item['copy']) < len(DEFI_EVENT_PRIORITY)]
     return result

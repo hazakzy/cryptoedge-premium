@@ -140,7 +140,7 @@ def main():
         if args.research:
             snapshot = collect(now, FEEDS, config['mapping'], order_flow_enabled=config['order_flow'],
                                headline_feeds=config['headline_feeds'])
-            print(json.dumps({k: snapshot.get(k) for k in ('as_of', 'news_candidates', 'research_unavailable',
+            print(json.dumps({k: snapshot.get(k) for k in ('as_of', 'news_candidates', 'defi_review_candidates', 'research_unavailable',
                 'defi_metrics', 'calendar', 'failures')}), flush=True)
             return
         if args.worker:
