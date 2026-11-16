@@ -86,3 +86,41 @@
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Public page hierarchy and homepage editorial layout. */
+:is(.landing-page, .intelligence-page, .checkout-page, .mentorship-page) h1 {
+  text-wrap: balance;
+}
+:is(.landing-page, .intelligence-page, .checkout-page, .mentorship-page) h2 {
+  text-wrap: balance;
+  letter-spacing: -.035em;
+}
+.landing-page .priority-hero {
+  padding-top: clamp(26px, 6vw, 84px);
+  align-items: center;
+}
+.landing-page .priority-hero h1 {
+  font-size: clamp(42px, 6.1vw, 80px);
+  line-height: 1.03;
+}
+.landing-page .brief-preview-rows dd { margin-left: 0; }
+.trading-options {
+  border-top: 1px solid var(--border);
+  padding-top: clamp(28px, 5vw, 60px);
+  margin-bottom: clamp(48px, 8vw, 100px);
+}
+.trading-options h2 { font-size: clamp(32px, 4vw, 50px); margin: 0 0 30px; }
+.trading-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 5vw, 70px);
+}
+.trading-options-grid article { display: flex; flex-direction: column; align-items: flex-start; }
+.trading-options-grid h3 { margin: 12px 0 8px; font-size: clamp(23px, 3vw, 31px); }
+.trading-options-grid p { color: var(--text-soft); max-width: 48ch; line-height: 1.7; margin: 0 0 22px; }
+.trading-options-grid .btn { margin-top: auto; }
+.landing-page .academy-subjects li > b { grid-column: 1 / 3; }
+@media (max-width: 620px) {
+  .trading-options-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .trading-options-grid article + article { border-top: 1px solid var(--border); padding-top: 28px; }
+}
