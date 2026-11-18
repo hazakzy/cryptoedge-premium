@@ -60,6 +60,15 @@ def announcements(raw, now, days=2):
 
 
 DEFI_BLOG_FEEDS = {'Lido': 'https://blog.lido.fi/rss/'}
+DEFI_NEWS_FEEDS = {
+    'CoinDesk reports': 'https://www.coindesk.com/arc/outboundfeeds/rss/',
+    'Cointelegraph reports': 'https://cointelegraph.com/rss',
+}
+DEFI_SUBJECT = re.compile(
+    r"\b(defi|decentralized finance|lending protocol|dex|stablecoin|"
+    r"aave|uniswap|jupiter|morpho|pendle|lido|curve|sky|makerdao|"
+    r"hyperliquid|kinetiq|maple|compound|ethena|spark|pancakeswap)\b", re.I)
+
 
 RELEASE_REPOS = {
     'tokens': {'BTC': 'bitcoin/bitcoin', 'ETH': 'ethereum/go-ethereum',
@@ -108,12 +117,15 @@ def collect_official_updates(now, fetch, uniswap, parse_feed):
                                          'url': url}))
         return result
 
+    unavailable = []
+
     def blog_announcements(source):
         subject, url = source
         try:
             rows = parse_feed(fetch(url), url, now, hours=96)
             return [row for row in rows if urlparse(row['url']).hostname == urlparse(url).hostname]
         except (OSError, ValueError, ElementTree.ParseError):
+            unavailable.append(url)
             return []
 
     dated_defi = [(row['published_date'], {'copy': 'Uniswap: '+row['title'][:150], 'url': row['url']})
@@ -123,10 +135,21 @@ def collect_official_updates(now, fetch, uniswap, parse_feed):
         for kind, repos in RELEASE_REPOS.items():
             rows = [row for batch in pool.map(releases, repos.items()) for row in batch]
             result[kind] = [item for _, item in sorted(rows, key=lambda row: row[0], reverse=True)]
-        for subject, rows in zip(DEFI_BLOG_FEEDS, pool.map(blog_announcements, DEFI_BLOG_FEEDS.items())):
+        feeds = {**DEFI_BLOG_FEEDS, **DEFI_NEWS_FEEDS}
+        for subject, rows in zip(feeds, pool.map(blog_announcements, feeds.items())):
+            if subject in DEFI_NEWS_FEEDS:
+                rows = [row for row in rows if DEFI_SUBJECT.search(row['title'])]
             dated_defi.extend((row['published_at'][:10], {'copy': subject+': '+row['title'][:150], 'url': row['url']})
                               for row in rows)
     recent = sorted(dated_defi, key=lambda row: row[0], reverse=True)
     ranked = sorted(recent, key=lambda row: defi_priority(row[1]['copy']))
-    result['defi'] = [item for _, item in ranked if defi_priority(item['copy']) < len(DEFI_EVENT_PRIORITY)]
+    result['defi'] = []
+    seen_titles = set()
+    for _, item in ranked:
+        title = item['copy'].split(': ', 1)[-1]
+        identity = re.sub(r'\W+', '', title.lower())
+        if defi_priority(title) < len(DEFI_EVENT_PRIORITY) and identity not in seen_titles:
+            seen_titles.add(identity)
+            result['defi'].append(item)
+    result['unavailable'] = unavailable
     return result

@@ -478,7 +478,7 @@ def render(snapshot, editorial, now, edition='daily'):
     lines += [('Some calendar inputs unavailable. ' if calendar_unavailable else '')+
               'Selected US releases and central-bank decisions. Calendar coverage is incomplete.']
     lines += ['Forecasts and results appear only when verified.']
-    lines += ['', 'DEFI WATCH']
+    lines += ['', 'DEFI METRICS']
     defi_lines = []
     for row in snapshot.get('defi', []):
         try:
@@ -494,13 +494,6 @@ def render(snapshot, editorial, now, edition='daily'):
     lines += ['• '+x for x in defi_display] or ['No material DeFi change highlighted from available coverage.']
     if defi_note:
         lines += [defi_note]
-    lines += ['', 'WATCHLIST']
-    watch = {'up': 'Continuation watch; await a separate confirmed setup.',
-             'down': 'Weak structure; await a separate confirmed setup.',
-             'mixed': 'Mixed conditions; wait for clarity.', 'flat': 'No clear directional preference.'}
-    for symbol in SYMBOLS:
-        view = markets.get(symbol)
-        lines.append(symbol.removesuffix('USDT')+': '+(watch[view['stance']] if view else 'Current assessment unavailable.'))
     lines += ['', 'WHAT CHANGES THE VIEW',
               'A sustained break of established support or recovery through resistance requires reassessment.',
               '', 'TOP GAINERS & LOSERS — 24H',
