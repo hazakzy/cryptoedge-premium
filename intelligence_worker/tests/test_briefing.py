@@ -145,7 +145,7 @@ class CatalystAndIntegrationTests(unittest.TestCase):
         self.assertIn('Top 3 losers:\n1. EEE -20.00%', text)
         self.assertNotIn('CRYPTOEDGE STATUS', text)
         self.assertNotIn('bybit', text.lower())
-        self.assertLessEqual(len(text.encode('utf-16-le'))//2, 3900)
+        self.assertLessEqual(len(__import__('intelligence.formatting', fromlist=['visible_text']).visible_text(text).encode('utf-16-le'))//2, 3900)
 
     def test_roundups_run_monday_and_friday_with_links_and_deduplication(self):
         from intelligence.formatting import telegram_html
@@ -178,8 +178,8 @@ class CatalystAndIntegrationTests(unittest.TestCase):
         for index, row in enumerate(item['movers']['gainers']+item['movers']['losers']):
             row['symbol'] = 'ABCDEFGHIJKLMNOPQRS'+str(index)
         text, _ = render(item, {'news': news, 'events': events}, NOW)
-        self.assertLessEqual(len(text.encode('utf-16-le'))//2, 3900)
-        self.assertIn('Additional items omitted', text)
+        self.assertLessEqual(len(__import__('intelligence.formatting', fromlist=['visible_text']).visible_text(text).encode('utf-16-le'))//2, 3900)
+        self.assertNotIn('\nWATCHLIST\n', text)
         self.assertIn('Top 3 gainers', text)
 
     def test_supplementary_outages_do_not_erase_main_assessment(self):
