@@ -413,3 +413,134 @@ td.full.empty { padding: 42px 24px; font-size: 14px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+
+/* Shared motion and depth system — all public pages */
+html { overflow-x: clip; }
+body:not(.admin-page) { overflow-x: clip; }
+body:not(.admin-page)::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  inset: 0;
+  opacity: .8;
+  background:
+    radial-gradient(600px 340px at -18% 25%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 68%),
+    radial-gradient(540px 320px at 116% 72%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%);
+  animation: site-light-pass 18s ease-in-out infinite alternate;
+}
+@keyframes site-light-pass {
+  from { background-position: -180px 0, 160px 0; }
+  to { background-position: 160px 0, -180px 0; }
+}
+body:not(.admin-page) .topbar {
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(16px);
+}
+body:not(.admin-page) .topbar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 34%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: navigation-sweep 9s ease-in-out infinite;
+}
+@keyframes navigation-sweep {
+  0%, 100% { transform: translateX(-115%); opacity: 0; }
+  18%, 76% { opacity: .72; }
+  55% { transform: translateX(295%); opacity: .72; }
+}
+body:not(.admin-page) .public-nav .nav-link {
+  position: relative;
+}
+body:not(.admin-page) .public-nav .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 5px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .28s ease;
+}
+body:not(.admin-page) .public-nav .nav-link:hover::after,
+body:not(.admin-page) .public-nav .nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+body:not(.admin-page) .btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+body:not(.admin-page) .btn::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  width: 48%;
+  left: -65%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: skewX(-20deg);
+  transition: left .48s ease;
+}
+body:not(.admin-page) .btn:hover { transform: translateY(-2px); box-shadow: 0 13px 30px rgba(0,0,0,.16); }
+body:not(.admin-page) .btn:hover::before { left: 122%; }
+body:not(.admin-page) .card,
+body:not(.admin-page) .band,
+body:not(.admin-page) .home-intelligence,
+body:not(.admin-page) .intel-sample,
+body:not(.admin-page) .intel-delivery,
+body:not(.admin-page) .course-card,
+body:not(.admin-page) .contact,
+body:not(.admin-page) .calendar-frame {
+  transition: transform .32s cubic-bezier(.2,.8,.2,1), border-color .32s ease, box-shadow .32s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  body:not(.admin-page) .card:hover,
+  body:not(.admin-page) .band:hover,
+  body:not(.admin-page) .home-intelligence:hover,
+  body:not(.admin-page) .intel-sample:hover,
+  body:not(.admin-page) .intel-delivery:hover,
+  body:not(.admin-page) .course-card:hover,
+  body:not(.admin-page) .contact:hover,
+  body:not(.admin-page) .calendar-frame:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
+    box-shadow: 0 24px 48px rgba(0,0,0,.15);
+  }
+}
+body:not(.admin-page) .page > section:not(.hero):not(.hero-editorial):not(.intel-hero) {
+  position: relative;
+}
+body:not(.admin-page) .page > section:not(.hero):not(.hero-editorial):not(.intel-hero)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(180px, 24%);
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: .7;
+}
+body:not(.admin-page) .quiet-link,
+body:not(.admin-page) .contact-link {
+  transition: color .22s ease, transform .22s ease;
+}
+body:not(.admin-page) .quiet-link:hover,
+body:not(.admin-page) .contact-link:hover { transform: translateX(4px); }
+@media (max-width: 600px) {
+  body:not(.admin-page)::before { opacity: .5; }
+  body:not(.admin-page) .public-nav .nav-link::after { left: 5px; right: 5px; }
+  body:not(.admin-page) .btn:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body:not(.admin-page)::before,
+  body:not(.admin-page) .topbar::after { animation: none; }
+}
