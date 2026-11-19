@@ -152,3 +152,56 @@
 @media (max-width: 820px) { .immersive-hero { min-height: 0; } .floating-market-card-a { right: 9%; top: 3%; } .floating-market-card-b { display: none; } .ambient-grid { inset-left: 30%; } }
 @media (max-width: 620px) { .hero-ambient { opacity: .52; } .ambient-orb-a { right: -24%; top: 7%; } .floating-market-card-a { display: none; } .ambient-grid { inset: 0; } .immersive-hero .brief-preview { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .ambient-orb, .floating-market-card { animation: none; } .immersive-hero .brief-preview { transition: none; } }
+
+/* Condensed briefing stack */
+.immersive-hero .hero-brief-stack {
+  position: relative; z-index: 1; align-self: center; width: min(100%, 420px);
+  transform: perspective(1200px) rotateY(-5deg) rotateX(1.5deg);
+  transition: transform .45s cubic-bezier(.2,.8,.2,1);
+}
+.immersive-hero .hero-brief-stack:hover { transform: perspective(1200px) rotateY(-2deg) rotateX(.5deg) translateY(-7px); }
+.brief-stack-frame {
+  position: relative; overflow: hidden; padding: 25px; border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 22px; background: linear-gradient(140deg, color-mix(in srgb, var(--surface) 90%, transparent), color-mix(in srgb, var(--surface-2) 88%, transparent));
+  box-shadow: -18px 30px 65px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.14); backdrop-filter: blur(18px);
+}
+.brief-stack-frame::after {
+  content: ""; position: absolute; width: 230px; height: 230px; right: -95px; top: -115px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 28%, transparent), transparent 70%); pointer-events: none;
+}
+.brief-stack-top { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.brief-stack-status { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font: 500 10px/1.3 var(--mono); white-space: nowrap; }
+.brief-stack-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.brief-stack-frame h2 { position: relative; z-index: 1; margin: 27px 0 21px; font-size: clamp(29px, 3.3vw, 42px); line-height: 1; letter-spacing: -.065em; }
+.brief-topic-grid { position: relative; z-index: 1; display: grid; gap: 8px; }
+.brief-topic {
+  display: grid; grid-template-columns: 28px 1fr auto; align-items: baseline; gap: 9px; min-width: 0;
+  padding: 13px 12px; border: 1px solid var(--border); border-radius: 12px; color: var(--text); text-decoration: none;
+  background: color-mix(in srgb, var(--surface) 62%, transparent); transition: border-color .25s ease, transform .25s ease, background .25s ease;
+}
+.brief-topic:hover { transform: translateX(5px); border-color: color-mix(in srgb, var(--accent) 52%, var(--border)); background: color-mix(in srgb, var(--accent-soft) 75%, var(--surface)); }
+.brief-topic span { color: var(--accent-text); font: 500 10px var(--mono); }
+.brief-topic b { font-size: 14px; letter-spacing: -.02em; }
+.brief-topic small { color: var(--muted); font-size: 10px; text-align: right; }
+.brief-topic-primary { border-color: color-mix(in srgb, var(--accent) 42%, var(--border)); }
+.brief-stack-link { position: relative; z-index: 1; display: inline-flex; margin-top: 18px; color: var(--accent-text); font-size: 12px; font-weight: 600; text-decoration: none; }
+.brief-stack-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 820px) {
+  .immersive-hero .hero-brief-stack { width: min(100%, 560px); transform: none; }
+  .immersive-hero .hero-brief-stack:hover { transform: translateY(-4px); }
+  .brief-topic-grid { grid-template-columns: repeat(3, 1fr); }
+  .brief-topic { display: flex; flex-direction: column; gap: 4px; min-height: 94px; }
+  .brief-topic small { text-align: left; }
+}
+@media (max-width: 480px) {
+  .brief-stack-frame { padding: 18px; border-radius: 17px; }
+  .brief-stack-frame h2 { margin: 18px 0 15px; font-size: 31px; }
+  .brief-topic-grid { gap: 6px; }
+  .brief-topic { padding: 10px; min-height: 80px; }
+  .brief-topic b { font-size: 13px; }
+  .brief-topic small { font-size: 9px; line-height: 1.35; }
+  .brief-stack-link { margin-top: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .immersive-hero .hero-brief-stack, .brief-topic { transition: none; }
+}
