@@ -1,0 +1,74 @@
+/* CryptoEdgeLab — complete public-site visual system */
+:root{--bg:#f4f6f3;--surface:#fff;--surface-2:#edf1ec;--text:#14231f;--text-soft:#344640;--muted:#66766f;--accent:#b7f34a;--accent-strong:#9bd72d;--accent-text:#263b12;--border:rgba(20,35,31,.12);--border-strong:rgba(20,35,31,.22);--shadow:0 22px 60px rgba(24,42,33,.09);--radius:18px;color-scheme:light}
+html,body{background:var(--bg)!important;color:var(--text)!important}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background-image:none!important;line-height:1.65}
+body:before{display:none!important}
+a{transition:color .18s ease,background .18s ease,border-color .18s ease,transform .18s ease}
+.topbar{background:rgba(244,246,243,.92)!important;border-bottom:1px solid var(--border)!important;backdrop-filter:blur(18px)!important}
+.topbar-inner{max-width:1200px!important;padding:16px 28px!important;min-height:78px}
+.brand{font-size:14px!important;letter-spacing:.14em!important;color:var(--text)!important}
+.logo{width:36px!important;height:36px!important;border-radius:11px!important;background:var(--text)!important;color:var(--accent)!important}
+.public-nav{display:flex;align-items:center;gap:12px}
+.public-nav .nav-link{padding:0 10px!important;color:var(--muted)!important;font-size:13px!important}
+.public-nav .nav-link[aria-current=page],.public-nav .nav-link:hover{color:var(--text)!important}
+.theme-toggle{display:none!important}
+.page{max-width:1200px!important;padding:64px 28px 80px!important}
+h1,h2,h3{color:var(--text)!important;letter-spacing:-.045em!important}
+h1{font-size:clamp(42px,6vw,76px)!important;line-height:1.02!important;font-weight:760!important}
+h2{font-size:clamp(30px,4vw,48px)!important;line-height:1.08!important;font-weight:720!important}
+h3{font-size:23px!important;line-height:1.2!important}
+p,.lead,.sub{color:var(--muted)!important}
+.lead{font-size:18px!important;line-height:1.7!important}
+.eyebrow{background:transparent!important;color:#597b27!important;border:0!important;padding:0!important;border-radius:0!important;letter-spacing:.16em!important;font-size:11px!important;font-weight:800!important}
+.hero{margin-bottom:84px!important}
+.hero-editorial,.priority-hero,.immersive-hero{display:grid!important;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr)!important;gap:60px!important;align-items:center!important;text-align:left!important;min-height:590px!important;padding:64px!important;border-radius:28px!important;background:#e8eee6!important;position:relative!important;overflow:hidden!important}
+.hero-copy{position:relative!important;z-index:2}
+.hero-copy .lead{max-width:560px!important;margin:0 0 26px!important}
+.hero-actions{justify-content:flex-start!important;gap:12px!important}
+.hero-note{font-size:13px!important;color:var(--muted)!important}
+.hero-ambient{inset:0!important;opacity:.22!important;pointer-events:none}
+.hero-brief-stack{position:relative!important;z-index:2}
+.brief-stack-frame{background:#15241f!important;color:#f3f7ef!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:22px!important;padding:30px!important;box-shadow:0 30px 70px rgba(13,30,22,.2)!important}
+.brief-stack-frame h2,.brief-stack-frame b{color:#f3f7ef!important}
+.brief-stack-frame .eyebrow{color:var(--accent)!important}
+.brief-stack-status{color:#c7d2c9!important}
+.brief-topic{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important}
+.brief-topic-primary{background:rgba(183,243,74,.12)!important;border-color:rgba(183,243,74,.35)!important}
+.brief-topic b,.brief-topic small,.brief-topic span{color:#eef4ed!important}
+.brief-stack-link{color:var(--accent)!important}
+.btn{border-radius:999px!important;min-height:48px!important;padding:0 22px!important;font-weight:700!important;box-shadow:none!important}
+.btn-primary{background:var(--text)!important;color:var(--accent)!important;border:1px solid var(--text)!important}
+.btn-primary:hover{background:#263b33!important;transform:translateY(-2px)}
+.btn-secondary{background:transparent!important;color:var(--text)!important;border:1px solid var(--border-strong)!important}
+.btn-secondary:hover{background:#e8eee6!important;border-color:var(--text)!important}
+.trading-options,.academy-overview,.economic-calendar,.mentorship,.contact,.legal,.learning-note,.section-intro{margin-top:76px!important}
+.trading-options>h2,.section-intro h2{max-width:720px}
+.trading-options>.lead{max-width:680px;margin-left:0!important}
+.trading-options-grid,.course-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important;margin-top:30px!important}
+.trading-options-grid article,.course-card,.card,.academy-overview,.economic-calendar,.contact,.legal,.learning-note,.bundle{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:20px!important;box-shadow:none!important}
+.trading-options-grid article{padding:28px!important;min-height:300px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important}
+.trading-options-grid article p{margin-bottom:28px!important}
+.trading-options-grid article .btn{margin-top:auto}
+.academy-overview{padding:42px!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:40px!important}
+.academy-subjects li{border-bottom:1px solid var(--border)!important;padding:16px 0!important}
+.economic-calendar{padding:34px!important;gap:30px!important}
+.calendar-frame{border-radius:14px!important;overflow:hidden!important}
+.contact,.legal,.learning-note{padding:30px!important}
+.contact-links{display:flex!important;flex-wrap:wrap!important;gap:12px!important}
+.contact-link{border:1px solid var(--border)!important;border-radius:999px!important;background:var(--surface-2)!important;padding:12px 16px!important;color:var(--text)!important}
+.footer{max-width:1200px!important;margin:50px auto 0!important;padding:28px 0!important;border-top:1px solid var(--border)!important;display:flex!important;justify-content:space-between!important;gap:24px!important;align-items:flex-start!important;color:var(--muted)!important}
+.footer a{color:var(--text)!important}
+.social-footer{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end;max-width:720px}
+.social-footer a{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 13px;border:1px solid var(--border);border-radius:999px;background:var(--surface);font-size:12px;font-weight:700;text-decoration:none;color:var(--text)!important}
+.social-footer a:hover{background:var(--accent);border-color:var(--accent);color:#172313!important;transform:translateY(-2px)}
+.value-strip{background:var(--surface-2)!important;border:1px solid var(--border)!important;border-radius:14px!important;padding:16px 20px!important}
+.mentorship-hero{background:#e8eee6!important;border-radius:24px!important;padding:56px!important}
+.course-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.course-card{padding:28px!important}
+.course-symbol{background:var(--surface-2)!important;color:#567b27!important;border-radius:12px!important}
+.course-prices{border-top:1px solid var(--border)!important;border-bottom:1px solid var(--border)!important}
+.bundle{padding:28px!important}
+.premium-hero,.intelligence-hero{background:#e8eee6!important;border-radius:24px!important;padding:56px!important}
+input,select,textarea{background:#fff!important;color:var(--text)!important;border:1px solid var(--border-strong)!important;border-radius:10px!important}
+@media(max-width:850px){.hero-editorial,.priority-hero,.immersive-hero{grid-template-columns:1fr!important;gap:34px!important;padding:42px!important}.trading-options-grid{grid-template-columns:1fr!important}.course-grid{grid-template-columns:1fr!important}.academy-overview{grid-template-columns:1fr!important}.economic-calendar{grid-template-columns:1fr!important}.topbar-inner{padding:12px 18px!important}.public-nav{gap:2px}.public-nav .nav-link{padding:0 6px!important;font-size:12px!important}}
+@media(max-width:560px){.page{padding:30px 16px 54px!important}.topbar-inner{align-items:flex-start!important;flex-direction:column!important;gap:8px!important}.topbar-actions{width:100%;justify-content:space-between}.public-nav{width:100%;justify-content:space-between}.public-nav .nav-link{font-size:11px!important;padding:0 3px!important}.hero-editorial,.priority-hero,.immersive-hero,.mentorship-hero{padding:28px 20px!important;min-height:0!important}.brief-stack-frame{padding:20px!important}.footer{padding:24px 16px!important;flex-direction:column!important}.social-footer{justify-content:flex-start}.academy-overview,.economic-calendar,.contact,.legal,.learning-note{padding:22px!important}}
