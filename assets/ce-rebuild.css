@@ -115,3 +115,26 @@ input,select{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(-
 .path-row small{display:block;color:var(--muted);font-size:10px;line-height:1.6}
 @media(max-width:850px){.insight-grid,.method-grid,.process-grid{grid-template-columns:1fr}.path-row{grid-template-columns:repeat(2,minmax(0,1fr))}.research-example-grid{grid-template-columns:1fr;gap:13px}}
 @media(max-width:620px){.editorial-note{flex-direction:column;gap:8px}.editorial-note>b{flex:auto}.research-example{padding:16px}.research-example-head{align-items:flex-start;flex-direction:column}.path-row{grid-template-columns:1fr}.insight-card{min-height:0}}
+
+/* More balanced editorial type scale */
+h1{font-size:clamp(38px,4.9vw,60px);line-height:1.13;letter-spacing:-.05em}
+h2{font-size:clamp(25px,3vw,36px);line-height:1.18;letter-spacing:-.045em}
+.hero-copy h1{max-width:720px}
+.checkout-hero h1{font-size:clamp(32px,3.5vw,44px)}
+.section-heading h2{max-width:700px}
+@media(max-width:620px){
+ h1,.hero h1{font-size:clamp(35px,9vw,46px);line-height:1.13}
+ h2{font-size:clamp(24px,6.2vw,30px)}
+ .checkout-hero h1{font-size:clamp(30px,7.5vw,38px)}
+}
+/* Premium introductory offer ribbon */
+.offer-ribbon{position:relative;overflow:hidden;background:var(--accent);color:var(--accentInk);border-bottom:1px solid color-mix(in srgb,var(--accentInk) 14%,transparent)}
+.offer-track{display:flex;width:max-content;min-height:38px;align-items:center;animation:offer-scroll 34s linear infinite}
+.offer-track>span{display:flex;align-items:center;gap:18px;padding:0 28px;white-space:nowrap;font-size:10px;letter-spacing:.02em}
+.offer-track b{font-size:9px;letter-spacing:.14em}
+.offer-track i{font-style:normal;opacity:.88}
+.offer-track a{font-size:10px;font-weight:850;text-decoration:underline;text-underline-offset:3px;color:inherit}
+.offer-ribbon:hover .offer-track{animation-play-state:paused}
+@keyframes offer-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.offer-track{animation:none}.offer-track>span[aria-hidden=true]{display:none}}
+@media(max-width:620px){.offer-track{min-height:35px}.offer-track>span{gap:12px;padding:0 18px;font-size:9px}}
